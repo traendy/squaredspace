@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Squared Space</string>
+    <string name="preference_highscore_key">high_scores</string>
+</resources>
