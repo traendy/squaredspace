@@ -3,7 +3,6 @@ package de.traendy.spaceshooter.player
 import android.graphics.Paint
 import android.graphics.RectF
 import de.traendy.spaceshooter.engine.EntityFactory
-import org.mockito.Mockito
 import org.mockito.Mockito.mock
 
 object TestPlayerFactory: EntityFactory<Player> {

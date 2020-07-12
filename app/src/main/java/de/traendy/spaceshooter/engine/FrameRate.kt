@@ -1,9 +1,8 @@
 package de.traendy.spaceshooter.engine
 
 class FrameRate {
-    val interval = 16
+    private val interval = 16
     private var lastFrame = System.currentTimeMillis()
-
 
     fun isNextFrame(): Boolean {
         val currentTime = System.currentTimeMillis()

@@ -2,15 +2,11 @@ package de.traendy.spaceshooter
 
 import android.content.Context
 import android.content.pm.ActivityInfo
-import android.opengl.Visibility
 import android.os.Bundle
 import android.view.View
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.button.MaterialButton
-import com.squareup.moshi.JsonAdapter
-import com.squareup.moshi.Moshi
 import de.traendy.spaceshooter.game.GameState
 import de.traendy.spaceshooter.game.GameView
 import kotlinx.android.synthetic.main.activity_main.*
@@ -43,7 +39,7 @@ class MainActivity : AppCompatActivity(), Observer {
             getString(R.string.preference_highscore_key), Context.MODE_PRIVATE
         )
         currentHighScore = sharedPref.getLong("LastHighScore", 0L)
-        highScoreLabel.text = "Current Highscore:"
+        highScoreLabel.text = getString(R.string.current_highscore)
         highScoreValue.text = currentHighScore.toString()
         highScoreLabel.visibility = View.VISIBLE
         highScoreValue.visibility = View.VISIBLE
@@ -77,10 +73,11 @@ class MainActivity : AppCompatActivity(), Observer {
                 mGameView.gameState.deleteObserver(this)
                 runOnUiThread {
                     mGameOverText.visibility = View.VISIBLE
-                    val highscore = o.highScore()
-                    mGameOverText.text = " Your score: $highscore."
+                    val highScore = o.highScore()
+                    mGameOverText.text =
+                        getString(R.string.your_score, highScore)
                     mStartButton.visibility = View.VISIBLE
-                    saveHighScore(highscore)
+                    saveHighScore(highScore)
                     highScoreLabel.visibility = View.VISIBLE
                     highScoreValue.visibility = View.VISIBLE
                 }
@@ -88,18 +85,18 @@ class MainActivity : AppCompatActivity(), Observer {
         }
     }
 
-    private fun saveHighScore(highscore: Long) {
+    private fun saveHighScore(highScore: Long) {
         val sharedPref = getSharedPreferences(
             getString(R.string.preference_highscore_key), Context.MODE_PRIVATE
         )
         val score = sharedPref.getLong("LastHighScore", 0L)
-        if(highscore > score){
-            sharedPref.edit().putLong("LastHighScore", highscore).apply()
-            currentHighScore = highscore
-            highScoreLabel.text = "New Highscore:"
+        if(highScore > score){
+            sharedPref.edit().putLong("LastHighScore", highScore).apply()
+            currentHighScore = highScore
+            highScoreLabel.text = getString(R.string.new_high_score)
             highScoreValue.text = currentHighScore.toString()
         }else{
-            highScoreLabel.text = "Current Highscore:"
+            highScoreLabel.text = getString(R.string.current_highscore)
         }
 
     }

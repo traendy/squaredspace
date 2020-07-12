@@ -6,7 +6,7 @@ import org.junit.Assert.*
 
 class PrimitiveEntityHolderTest {
 
-    val primitiveEntityHolder = PrimitiveEntityHolder<Entity>()
+    private val primitiveEntityHolder = PrimitiveEntityHolder<Entity>()
 
     @Test
     fun getAllEntities() {

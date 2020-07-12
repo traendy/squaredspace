@@ -7,8 +7,8 @@ class GameState( var startTime:Long): Observable() {
     val mineSpawningInterval= 704L
     val bossSpawningInterval = 60*1000*16/8L/8
     var running:Boolean = false
-    var points = 0
-    var gameTime = 0L
+    private var points = 0
+    private var gameTime = 0L
     var meteorSpawningInterval = 704L
     var projectileSpawningInterval = 1008L
     set(value) {
@@ -26,7 +26,7 @@ class GameState( var startTime:Long): Observable() {
 
     fun timeSurvived():Long = gameTime
 
-    public fun lose(time:Long){
+    fun lose(time:Long){
         running = false
         gameTime = time - startTime
         setChanged()
@@ -44,10 +44,6 @@ class GameState( var startTime:Long): Observable() {
 
     fun addPoint(point:Int) {
         points += point
-    }
-
-    fun setTime(time:Long){
-        gameTime = time
     }
 
     fun highScore():Long{

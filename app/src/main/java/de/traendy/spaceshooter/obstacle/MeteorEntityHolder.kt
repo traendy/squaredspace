@@ -7,7 +7,8 @@ import de.traendy.spaceshooter.engine.PrimitiveEntityHolder
 import de.traendy.spaceshooter.engine.Spawner
 import de.traendy.spaceshooter.game.GameState
 import de.traendy.spaceshooter.player.Player
-import java.util.*
+import kotlin.random.Random
+
 
 class MeteorEntityHolder(
     private val collisionDetector: CollisionDetector,
@@ -17,10 +18,10 @@ class MeteorEntityHolder(
 
     fun spawnMeteors(spawnY: Int, spawnX: Int) {
         if (spawner.spawn()) {
-            for (i in 0..Random().nextInt(2)) {
+            for (i in 0..Random.nextInt(2)) {
                 val meteor = Meteor(
                     spawnY,
-                    kotlin.random.Random.nextInt(spawnX)
+                    Random.nextInt(spawnX).toFloat()
                 )
                 prepareEntityAddition(meteor)
             }
@@ -33,7 +34,7 @@ class MeteorEntityHolder(
             if (!meteor.isAlive()) {
                 prepareEntityDeletion(meteor)
             } else {
-                meteor.updatePosition(0, 0)
+                meteor.updatePosition(0f, 0f)
                 meteor.draw(canvas)
                 detectPlayerCollision(player, meteor)
             }

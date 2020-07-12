@@ -12,15 +12,15 @@ class PowerUpEntityHolder(
     private val collisionDetector: CollisionDetector,
     private val spawner: Spawner,
     private val gameState: GameState
-): PrimitiveEntityHolder<PowerUp>() {
+) : PrimitiveEntityHolder<PowerUp>() {
 
     fun spawnPowerUp(spawnY: Int, spawnX: Int) {
         if (spawner.spawn()) {
-                val powerUp = PowerUp(
-                    spawnY,
-                    Random.nextInt(spawnX)
-                )
-                prepareEntityAddition(powerUp)
+            val powerUp = PowerUp(
+                spawnY.toFloat(),
+                Random.nextInt(spawnX).toFloat()
+            )
+            prepareEntityAddition(powerUp)
 
         }
     }
@@ -30,7 +30,7 @@ class PowerUpEntityHolder(
             if (!powerUp.isAlive()) {
                 prepareEntityDeletion(powerUp)
             } else {
-                powerUp.updatePosition(0, 0)
+                powerUp.updatePosition(0f, 0f)
                 powerUp.draw(canvas)
                 detectPlayerCollision(player, powerUp)
             }

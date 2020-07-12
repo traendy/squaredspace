@@ -14,8 +14,8 @@ class MineEntityHolder(private val spawner: Spawner): PrimitiveEntityHolder<Mine
         if (spawner.spawn() && boss.isAlive()) {
             val mine = Mine(
                 worldHeight,
-                spawnY,
-                spawnX,
+                spawnY.toFloat(),
+                spawnX.toFloat(),
                 Random.nextInt(-1, 2)
             )
             prepareEntityAddition(mine)
@@ -34,7 +34,7 @@ class MineEntityHolder(private val spawner: Spawner): PrimitiveEntityHolder<Mine
             if (!mine.isAlive()) {
                 prepareEntityDeletion(mine)
             } else {
-                mine.updatePosition(0, 0)
+                mine.updatePosition(0f, 0f)
                 mine.draw(canvas)
             }
         }

@@ -8,7 +8,7 @@ open class PrimitiveEntityHolder<T: Entity>:
     private val deletionEntities = mutableListOf<T>()
 
     override fun getAllEntities(): List<T> {
-        return currentEntities;
+        return currentEntities
     }
 
     override fun prepareEntityAddition(entities: List<T>) {

@@ -1,19 +1,18 @@
 package de.traendy.spaceshooter.weapon
 
 import android.graphics.Canvas
-import de.traendy.spaceshooter.game.GameState
 import de.traendy.spaceshooter.engine.PrimitiveEntityHolder
 import de.traendy.spaceshooter.engine.Spawner
 import kotlin.random.Random
 
-class ProjectileEntityHolder(private val spawner: Spawner, private val gameState: GameState):
+class ProjectileEntityHolder(private val spawner: Spawner):
     PrimitiveEntityHolder<Projectile>() {
 
     fun spawnProjectiles(spawnY:Int, spawnX:Int){
         if (spawner.spawn()) {
             val projectile = Projectile(
-                spawnY,
-                spawnX,
+                spawnY.toFloat(),
+                spawnX.toFloat(),
                 Random.nextInt(-2, 3)
             )
             prepareEntityAddition(projectile)
@@ -25,7 +24,7 @@ class ProjectileEntityHolder(private val spawner: Spawner, private val gameState
             if (!projectile.isAlive()) {
                 prepareEntityDeletion(projectile)
             }else{
-                projectile.updatePosition(0, 0)
+                projectile.updatePosition(0f, 0f)
                 projectile.draw(canvas)
             }
         }

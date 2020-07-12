@@ -1,5 +1,6 @@
 package de.traendy.spaceshooter.game
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Canvas
 import android.text.TextPaint
@@ -47,8 +48,7 @@ class GameView @JvmOverloads constructor(
     private val projectileSpawner = Spawner(gameState.projectileSpawningInterval)
     private val projectileEntityHolder =
         ProjectileEntityHolder(
-            projectileSpawner,
-            gameState
+            projectileSpawner
         )
     private val powerUpSpawner = Spawner(gameState.powerUpSpawningInterval)
     private val powerUpEntityHolder =
@@ -60,10 +60,10 @@ class GameView @JvmOverloads constructor(
     private val starSpawner = Spawner(gameState.starSpawningInterval)
     private val starEntityHolder =
         StarEntityHolder(starSpawner)
-    private val playerParticleEntitiyHolder =
+    private val playerParticleEntityHolder =
         ParticleEntityHolderFactory.createPlayerParticleHolder()
 
-    private val bossParticleEntitiyHolder = ParticleEntityHolderFactory.createBossParticleHolder()
+    private val bossParticleEntityHolder = ParticleEntityHolderFactory.createBossParticleHolder()
     private val bossSpawner = Spawner(gameState.bossSpawningInterval)
     private val boss = PlayerFactory.createBoss().apply { kill() }
     private val bossProjectileCollisionDetector = BossProjectileCollisionDetector()
@@ -89,48 +89,44 @@ class GameView @JvmOverloads constructor(
 
     override fun run() {
         while (mRunning) {
-            if (mSurfaceHolder.surface.isValid) {
-
-                if (frameRate.isNextFrame()) {
-                    val canvas = mSurfaceHolder.lockCanvas()
-                    canvas.save()
-                    canvas.drawColor(
-                        ContextCompat.getColor(
-                            context,
-                            R.color.surfaceBackground
-                        )
+            if (mSurfaceHolder.surface.isValid && frameRate.isNextFrame()) {
+                val canvas = mSurfaceHolder.lockCanvas()
+                canvas.save()
+                canvas.drawColor(
+                    ContextCompat.getColor(
+                        context,
+                        R.color.surfaceBackground
                     )
-                    drawStars(canvas)
-                    drawPowerUps(canvas)
-                    if (gameState.running) {
-                        drawProjectiles(canvas)
-                        player.draw(canvas)
-                        drawBoss(canvas)
-                    }
-                    drawMeteors(canvas)
-                    drawHud(canvas)
-                    drawPlayerParticals(canvas)
-                    drawBossParticals(canvas)
-                    canvas.restore()
-                    mSurfaceHolder.unlockCanvasAndPost(canvas)
-
-                    powerUpEntityHolder.executePreparedDeletion()
-                    powerUpEntityHolder.executePreparedAddition()
-                    meteorEntityHolder.executePreparedDeletion()
-                    meteorEntityHolder.executePreparedAddition()
-                    projectileEntityHolder.executePreparedDeletion()
-                    projectileEntityHolder.executePreparedAddition()
-                    starEntityHolder.executePreparedDeletion()
-                    starEntityHolder.executePreparedAddition()
-                    playerParticleEntitiyHolder.executePreparedDeletion()
-                    playerParticleEntitiyHolder.executePreparedAddition()
-                    bossParticleEntitiyHolder.executePreparedDeletion()
-                    bossParticleEntitiyHolder.executePreparedAddition()
-                    mineEntityHolder.executePreparedAddition()
-                    mineEntityHolder.executePreparedDeletion()
-                    updateSpawner(gameState)
+                )
+                drawStars(canvas)
+                drawPowerUps(canvas)
+                if (gameState.running) {
+                    drawProjectiles(canvas)
+                    player.draw(canvas)
+                    drawBoss(canvas)
                 }
+                drawMeteors(canvas)
+                drawHud(canvas)
+                drawPlayerParticals(canvas)
+                drawBossParticals(canvas)
+                canvas.restore()
+                mSurfaceHolder.unlockCanvasAndPost(canvas)
 
+                powerUpEntityHolder.executePreparedDeletion()
+                powerUpEntityHolder.executePreparedAddition()
+                meteorEntityHolder.executePreparedDeletion()
+                meteorEntityHolder.executePreparedAddition()
+                projectileEntityHolder.executePreparedDeletion()
+                projectileEntityHolder.executePreparedAddition()
+                starEntityHolder.executePreparedDeletion()
+                starEntityHolder.executePreparedAddition()
+                playerParticleEntityHolder.executePreparedDeletion()
+                playerParticleEntityHolder.executePreparedAddition()
+                bossParticleEntityHolder.executePreparedDeletion()
+                bossParticleEntityHolder.executePreparedAddition()
+                mineEntityHolder.executePreparedAddition()
+                mineEntityHolder.executePreparedDeletion()
+                updateSpawner(gameState)
             }
         }
     }
@@ -138,20 +134,20 @@ class GameView @JvmOverloads constructor(
     private fun drawBoss(canvas: Canvas) {
         if (bossSpawner.spawn() && !boss.isAlive()) {
             boss.revive()
-            bossParticleEntitiyHolder.reset()
+            bossParticleEntityHolder.reset()
         }
         if(bossProjectileCollisionDetector.collided(boss, projectileEntityHolder.getAllEntities())){
             gameState.addPoint(200)
-            bossParticleEntitiyHolder.removeParticles(20)
+            bossParticleEntityHolder.removeParticles(20)
         }
         if (!boss.isAlive()) {
-            bossParticleEntitiyHolder.updateVisibility(false)
+            bossParticleEntityHolder.updateVisibility(false)
             mineEntityHolder.prepareEntityDeletion(mineEntityHolder.getAllEntities())
             bossSpawner.enable()
         } else {
             bossSpawner.disable()
-            bossParticleEntitiyHolder.updateVisibility(true)
-            boss.updatePosition(player._X, 100)
+            bossParticleEntityHolder.updateVisibility(true)
+            boss.updatePosition(player.xPos, 100f)
             boss.draw(canvas)
             drawMines(canvas)
         }
@@ -176,13 +172,13 @@ class GameView @JvmOverloads constructor(
     }
 
     private fun drawPlayerParticals(canvas: Canvas) {
-        playerParticleEntitiyHolder.updatePosition(player._X, player._Y)
-        playerParticleEntitiyHolder.draw(canvas)
+        playerParticleEntityHolder.updatePosition(player.xPos, player.yPos)
+        playerParticleEntityHolder.draw(canvas)
     }
 
     private fun drawBossParticals(canvas: Canvas) {
-        bossParticleEntitiyHolder.updatePosition(boss._X, boss._Y)
-        bossParticleEntitiyHolder.draw(canvas)
+        bossParticleEntityHolder.updatePosition(boss.xPos, boss.yPos)
+        bossParticleEntityHolder.draw(canvas)
     }
 
     private fun drawPowerUps(canvas: Canvas) {
@@ -201,7 +197,7 @@ class GameView @JvmOverloads constructor(
     }
 
     private fun drawStars(canvas: Canvas) {
-        starEntityHolder.spawnStars(mViewHeight, mViewWidth)
+        starEntityHolder.spawnStars(mViewHeight.toFloat(), mViewWidth.toFloat())
         starEntityHolder.updateStars(canvas)
     }
 
@@ -225,18 +221,17 @@ class GameView @JvmOverloads constructor(
         numberOfMeteors = meteorEntityHolder.getAllEntities().size
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(event: MotionEvent): Boolean {
         val x = event.x
         val y = event.y
         //check if player is clicked
         when (event.action) {
             MotionEvent.ACTION_DOWN -> {
-                player.updatePosition(x.toInt(), y.toInt())
+                player.updatePosition(x, y)
             }
             MotionEvent.ACTION_MOVE -> {
-                player.updatePosition(x.toInt(), y.toInt())
-            }
-            else -> {
+                player.updatePosition(x, y)
             }
         }
         return true
@@ -262,7 +257,7 @@ class GameView @JvmOverloads constructor(
         if (o is GameState) {
             if (!o.running) {
                 projectileEntityHolder.prepareEntityDeletion(projectileEntityHolder.getAllEntities())
-                playerParticleEntitiyHolder.updateVisibility(false)
+                playerParticleEntityHolder.updateVisibility(false)
                 projectileSpawner.disable()
                 bossSpawner.disable()
                 repeat(3){
@@ -271,8 +266,8 @@ class GameView @JvmOverloads constructor(
             } else {
                 bossSpawner.enable()
                 projectileSpawner.enable()
-                player.setSpawn(mViewWidth / 2, mViewHeight - 120)
-                playerParticleEntitiyHolder.updateVisibility(true)
+                player.setSpawn(mViewWidth / 2f, mViewHeight - 120f)
+                playerParticleEntityHolder.updateVisibility(true)
             }
         }
     }

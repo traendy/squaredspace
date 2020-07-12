@@ -5,9 +5,7 @@ import android.text.TextPaint
 import de.traendy.spaceshooter.engine.Entity
 
 
-
-
-class PowerUp(private val worldHeight: Int, private val xPos: Int):
+class PowerUp(private val worldHeight: Float, private var xPos: Float) :
     Entity {
 
 
@@ -15,11 +13,8 @@ class PowerUp(private val worldHeight: Int, private val xPos: Int):
     private val circleShadowRect = RectF()
     private val mVelocity = 10f
     private val mSize = 60f
-    private var _Y = -mSize
-    private var _X = xPos.toFloat()
+    private var yPos = -mSize
     private var consumed = false
-    private var scale = 0f
-    private var directionScale = 0
 
     private val textPaint = TextPaint().apply {
         color = Color.parseColor("#FF55AA33")
@@ -43,52 +38,42 @@ class PowerUp(private val worldHeight: Int, private val xPos: Int):
         isAntiAlias = true
     }
 
-    private val circleShadowdPaint = Paint().apply {
+    private val circleShadowedPaint = Paint().apply {
         color = Color.parseColor("#99338811")
         style = Paint.Style.STROKE
         strokeWidth = 5f
         isAntiAlias = true
     }
 
-    override fun updatePosition(x: Int, y: Int) {
-        _Y += mVelocity
-        circleSolidRect.set(_X -mSize / 2 + 5, _Y - mSize -5, _X + mSize +5, _Y + mSize / 2 -5)
-        circleShadowRect.set(_X -mSize / 2 + 10, _Y - mSize, _X + mSize +10, _Y + mSize / 2)
+    override fun updatePosition(x: Float, y: Float) {
+        yPos += mVelocity
+        circleSolidRect.set(
+            xPos - mSize / 2 + 5, yPos - mSize - 5,
+            xPos + mSize + 5, yPos + mSize / 2 - 5
+        )
+        circleShadowRect.set(
+            xPos - mSize / 2 + 10,
+            yPos - mSize,
+            xPos + mSize + 10,
+            yPos + mSize / 2
+        )
     }
 
     override fun draw(canvas: Canvas) {
         canvas.save()
-//        canvas.translate(canvas.width / 2f, canvas.height / 2f);
-//        val scaleFactor = scale(0.01f)
-//        canvas.scale(scaleFactor, scaleFactor)
-//        canvas.translate(-canvas.width / 2f, -canvas.height / 2f);
         canvas.drawRect(circleSolidRect, collisionPaint)
-        canvas.drawOval(circleShadowRect, circleShadowdPaint)
+        canvas.drawOval(circleShadowRect, circleShadowedPaint)
         canvas.drawOval(circleSolidRect, circleSolidPaint)
-        canvas.drawText("S", _X+5f, _Y+5f, textShadow)
-        canvas.drawText("S", _X, _Y, textPaint)
+        canvas.drawText("S", xPos + 5f, yPos + 5f, textShadow)
+        canvas.drawText("S", xPos, yPos, textPaint)
         canvas.restore()
     }
-
-    private fun scale(delta: Float): Float {
-        scale += delta * directionScale
-        if (scale <= 0.5f) {
-            directionScale = 1
-            scale = 0.5f
-        } else if (scale >= 1) {
-            directionScale = -1
-            scale = 1f
-        }
-        return scale
-    }
-
 
     override fun getCollisionBox(): RectF {
         return circleSolidRect
     }
 
-    override fun isAlive(): Boolean
-        = _Y <= worldHeight && !consumed
+    override fun isAlive(): Boolean = yPos <= worldHeight && !consumed
 
 
     override fun kill() {
