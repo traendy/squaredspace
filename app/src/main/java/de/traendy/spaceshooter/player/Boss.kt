@@ -25,19 +25,6 @@ class Boss(mPaint: Paint, rectF: RectF) : Player(mPaint, rectF) {
         ) * 100)
     }
 
-    fun revive(){
-        hitPoints = 3
-        living = true
-        yPos = -100f
-    }
-
-    override fun kill() {
-        hitPoints--
-        if(hitPoints<= 0){
-            super.kill()
-        }
-    }
-
     fun getMineSpawnPosition(): Pair<Int, Int> {
         return Pair(
             (rectF.left + mWith / 2).toInt(),

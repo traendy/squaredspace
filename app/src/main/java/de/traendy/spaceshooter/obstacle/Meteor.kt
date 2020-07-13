@@ -6,9 +6,9 @@ import de.traendy.spaceshooter.engine.getDecelerateInterpolation
 import de.traendy.spaceshooter.game.GameConfig
 import kotlin.random.Random
 
-class Meteor(private val worldHeight: Int, private var xPos: Float) :
+class Meteor(private val worldHeight: Int, override var xPos: Float) :
     Entity {
-    private var yPos: Float = -150f
+    override var yPos: Float = -150f
     private var radius = GameConfig.meteorBaseSize + Random.nextInt(100)
     private var mVelocity = GameConfig.meteorBaseVelocity + Random.nextInt(12)
     private var destructionAngle = 0

@@ -8,10 +8,10 @@ import de.traendy.spaceshooter.engine.Entity
 
 import kotlin.random.Random
 
-class Star(private val worldHeight: Float, private val xPos: Float) :
+class Star(private val worldHeight: Float, override val xPos: Float) :
     Entity {
     private var radius = 1f + Random.nextInt(20)
-    private var yPos: Float = 0f
+    override var yPos: Float = 0f
     private var fillRectF = RectF()
     private val starColors = arrayOf(
         Color.parseColor("#DDFFFFFF"),

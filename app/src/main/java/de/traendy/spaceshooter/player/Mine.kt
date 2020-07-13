@@ -6,7 +6,10 @@ import android.graphics.Paint
 import android.graphics.RectF
 import de.traendy.spaceshooter.engine.Entity
 
-class Mine(private val worldHeight: Int, private var xPos: Float, private var yPos: Float, private val drift: Int):Entity {
+class Mine(
+    private val worldHeight: Int,
+    override var xPos: Float, override var yPos: Float, private val drift: Int
+) : Entity {
 
     private val collisionBox: RectF = RectF()
     private val mVelocity = 10
@@ -46,6 +49,6 @@ class Mine(private val worldHeight: Int, private var xPos: Float, private var yP
     override fun isAlive(): Boolean = yPos <= worldHeight + mRadius && !hit
 
     override fun kill() {
-       hit = true
+        hit = true
     }
 }

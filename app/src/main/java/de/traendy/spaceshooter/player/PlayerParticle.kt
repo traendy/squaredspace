@@ -9,8 +9,8 @@ import kotlin.math.sin
 import kotlin.random.Random
 
 class PlayerParticle(
-    var xPos: Float,
-    private var yPos: Float,
+    override var xPos: Float,
+    override var yPos: Float,
     private var particleSize: Float,
     private var rotationRadius: Float,
     private val speed: Int,

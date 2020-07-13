@@ -15,6 +15,7 @@ import de.traendy.spaceshooter.engine.FrameRate
 import de.traendy.spaceshooter.engine.PrimitiveCollisionDetector
 import de.traendy.spaceshooter.engine.Spawner
 import de.traendy.spaceshooter.enviroment.StarEntityHolder
+import de.traendy.spaceshooter.hud.HitPointsHud
 import de.traendy.spaceshooter.obstacle.MeteorEntityHolder
 import de.traendy.spaceshooter.player.*
 import de.traendy.spaceshooter.powerup.PowerUpEntityHolder
@@ -35,7 +36,7 @@ class GameView @JvmOverloads constructor(
     private var mRunning: Boolean = false
     private val player = PlayerFactory.create()
 
-    private val frameRate = FrameRate()
+    private val frameRate = FrameRate(16L)
     val gameState =
         GameState(System.currentTimeMillis())
     private val meteorSpawner = Spawner(gameState.meteorSpawningInterval)
@@ -76,6 +77,7 @@ class GameView @JvmOverloads constructor(
         )
         textSize = 40f
     }
+    private val hitPointsHud = HitPointsHud( 50f, 20f)
 
     init {
         gameState.addObserver(this)
@@ -89,7 +91,7 @@ class GameView @JvmOverloads constructor(
 
     override fun run() {
         while (mRunning) {
-            if (mSurfaceHolder.surface.isValid && frameRate.isNextFrame()) {
+            if (mSurfaceHolder.surface.isValid && frameRate.isNextFrame(System.currentTimeMillis())) {
                 val canvas = mSurfaceHolder.lockCanvas()
                 canvas.save()
                 canvas.drawColor(
@@ -100,9 +102,11 @@ class GameView @JvmOverloads constructor(
                 )
                 drawStars(canvas)
                 drawPowerUps(canvas)
-                if (gameState.running) {
+
+                if (gameState.running && isPlayerAlive(player, gameState)) {
                     drawProjectiles(canvas)
                     player.draw(canvas)
+                    drawHitpoints(canvas, player.hitPoints)
                     drawBoss(canvas)
                 }
                 drawMeteors(canvas)
@@ -128,6 +132,20 @@ class GameView @JvmOverloads constructor(
                 mineEntityHolder.executePreparedDeletion()
                 updateSpawner(gameState)
             }
+        }
+    }
+
+    private fun drawHitpoints(canvas: Canvas, hitPoints: Int) {
+        hitPointsHud.updateScreenWidth(mViewWidth.toFloat())
+        hitPointsHud.updateHitPoints(hitPoints)
+        hitPointsHud.draw(canvas)
+    }
+
+    private fun isPlayerAlive(player: Player, gameState: GameState): Boolean {
+        return if(player.isAlive()) true
+        else {
+            gameState.lose(System.currentTimeMillis())
+            false
         }
     }
 
@@ -264,6 +282,7 @@ class GameView @JvmOverloads constructor(
                     boss.kill()
                 }
             } else {
+                player.revive()
                 bossSpawner.enable()
                 projectileSpawner.enable()
                 player.setSpawn(mViewWidth / 2f, mViewHeight - 120f)

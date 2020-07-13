@@ -46,8 +46,9 @@ class MeteorEntityHolder(
         meteor: Meteor
     ) {
         player?.let {
-            if (collisionDetector.collided(meteor, player)) {
-                gameState.lose(System.currentTimeMillis())
+            if (collisionDetector.collided(meteor, player) && meteor.isAlive()) {
+                meteor.kill()
+                player.kill()
             }
         }
     }

@@ -9,12 +9,12 @@ open class Player(
     protected val rectF: RectF
 ) : Entity {
 
-    var xPos: Float = 0f
-    internal var yPos: Float = 0f
+    override var xPos: Float = 0f
+    override var yPos: Float = 0f
     val mWith = 150f
     val mHeight = 150f
     open var hitPoints = 3
-    protected open var living = true
+    protected open var living = false
 
     fun setSpawn(posX: Float, posY: Float) {
         xPos = posX
@@ -55,7 +55,10 @@ open class Player(
     }
 
     override fun kill() {
-        living = false
+        hitPoints--
+        if (hitPoints <= 0) {
+            living = false
+        }
     }
 
     fun getProjectileSpawnPosition(): Pair<Int, Int> {
@@ -63,5 +66,11 @@ open class Player(
             (rectF.left + mWith / 2).toInt(),
             rectF.top.toInt()
         )
+    }
+
+    fun revive() {
+        hitPoints = 3
+        living = true
+        yPos = -100f
     }
 }

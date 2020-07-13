@@ -5,7 +5,7 @@ import android.text.TextPaint
 import de.traendy.spaceshooter.engine.Entity
 
 
-class PowerUp(private val worldHeight: Float, private var xPos: Float) :
+class PowerUp(private val worldHeight: Float, override var xPos: Float) :
     Entity {
 
 
@@ -13,7 +13,7 @@ class PowerUp(private val worldHeight: Float, private var xPos: Float) :
     private val circleShadowRect = RectF()
     private val mVelocity = 10f
     private val mSize = 60f
-    private var yPos = -mSize
+    override var yPos = -mSize
     private var consumed = false
 
     private val textPaint = TextPaint().apply {

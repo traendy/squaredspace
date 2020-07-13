@@ -7,7 +7,7 @@ import android.graphics.RectF
 import de.traendy.spaceshooter.engine.Entity
 import de.traendy.spaceshooter.engine.getAnticipateInterpolator
 
-class Projectile(private var xPos: Float, private var yPos: Float, private val drift: Int) :
+class Projectile(override var xPos: Float, override var yPos: Float, private val drift: Int) :
     Entity {
     private val mWith = 10f
     private val mHeight = 60f

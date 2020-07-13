@@ -27,9 +27,9 @@ class MineEntityHolder(private val spawner: Spawner): PrimitiveEntityHolder<Mine
             prepareEntityDeletion(getAllEntities())
         }
         getAllEntities().forEach { mine ->
-            if(PrimitiveCollisionDetector().collided(mine, player)){
+            if(PrimitiveCollisionDetector().collided(mine, player) && mine.isAlive()){
                 mine.kill()
-                gameState.lose(System.currentTimeMillis())
+                player.kill()
             }
             if (!mine.isAlive()) {
                 prepareEntityDeletion(mine)
