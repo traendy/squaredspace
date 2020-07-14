@@ -1,34 +1,35 @@
 package de.traendy.spaceshooter.player
 
 import android.graphics.Canvas
-import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.RectF
 import de.traendy.spaceshooter.engine.Entity
-import de.traendy.spaceshooter.engine.getAnticipateInterpolator
-import de.traendy.spaceshooter.engine.getDecelerateInterpolation
-import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.random.Random
 
-class PlayerParticle(var xPos:Float, var yPos: Float, var particleSize:Float, var rotationRadius:Float, val clockWise:Boolean, val speed:Int, var visible:Boolean = false,
-                     private val mPaint:Paint, private val mBorderPaint:Paint):
+class PlayerParticle(
+    override var xPos: Float,
+    override var yPos: Float,
+    private var particleSize: Float,
+    private var rotationRadius: Float,
+    private val speed: Int,
+    private var visible: Boolean = false,
+    private val mPaint: Paint,
+    private val mBorderPaint: Paint
+) :
     Entity {
 
     private var angle = Random.nextInt(720)
     private val rectF = RectF()
 
     private val borderRectF = RectF()
-    private var direction = -1
-    init {
-        if(clockWise) direction = 1
-    }
+    private var direction = if (Random.nextBoolean()) 1 else -1
 
-    override fun updatePosition(x: Int, y: Int) {
+    override fun updatePosition(x: Float, y: Float) {
 
-        xPos = x.toFloat()
-        yPos = y.toFloat()
+        xPos = x
+        yPos = y
 
         val tRadius = rotationRadius - particleSize / 2
         val orbitRectX =
@@ -50,14 +51,14 @@ class PlayerParticle(var xPos:Float, var yPos: Float, var particleSize:Float, va
             orbitRectY + particleSize
         )
         if (angle < 720) {
-            angle += 2*speed
+            angle += 2 * speed
         } else {
             angle = 0
         }
     }
 
     override fun draw(canvas: Canvas) {
-        if(visible) {
+        if (visible) {
             canvas.save()
             canvas.rotate(direction * angle.toFloat(), xPos, yPos)
             canvas.drawRect(rectF, mPaint)
@@ -66,7 +67,7 @@ class PlayerParticle(var xPos:Float, var yPos: Float, var particleSize:Float, va
         }
     }
 
-    fun setVisibility(visible: Boolean){
+    fun setVisibility(visible: Boolean) {
         this.visible = visible
     }
 

@@ -1,10 +1,9 @@
 package de.traendy.spaceshooter.engine
 
 
-class Spawner(private var interval: Long) {
+class Spawner(private var interval: Long, private var enabled:Boolean = true) {
 
     private var lastSpawn = System.currentTimeMillis()
-    private var enabled = true
 
     fun spawn(): Boolean {
         if(enabled) {

@@ -8,12 +8,12 @@ import de.traendy.spaceshooter.engine.Entity
 
 import kotlin.random.Random
 
-class Star(private val worldHeight: Int, private val xPos: Int) :
+class Star(private val worldHeight: Float, override val xPos: Float) :
     Entity {
     private var radius = 1f + Random.nextInt(20)
-    private var _Y: Int = 0
-    var fillRectF = RectF()
-    val colors = arrayOf(
+    override var yPos: Float = 0f
+    private var fillRectF = RectF()
+    private val starColors = arrayOf(
         Color.parseColor("#DDFFFFFF"),
         Color.parseColor("#44AAFFFF"),
         Color.parseColor("#33FFAAFF"),
@@ -29,28 +29,25 @@ class Star(private val worldHeight: Int, private val xPos: Int) :
         Color.parseColor("#fFFFFF33"),
         Color.parseColor("#AA12FF44")
     )
-    public val fillPaint = Paint().apply {
-        color = colors[Random.nextInt(colors.size)]
-
+    private val fillPaint = Paint().apply {
+        color = starColors[Random.nextInt(starColors.size)]
         strokeWidth = 10f
     }
 
-    override fun updatePosition(x: Int, y: Int) {
-        _Y += radius.toInt()
-        fillRectF.set(xPos.toFloat(), _Y.toFloat(), xPos + radius, _Y + radius)
+    override fun updatePosition(x: Float, y: Float) {
+        yPos += radius
+        fillRectF.set(xPos, yPos, xPos + radius, yPos + radius)
     }
 
     override fun draw(canvas: Canvas) {
-        canvas.drawRect(fillRectF,fillPaint)
+        canvas.drawRect(fillRectF, fillPaint)
     }
 
-    override fun getCollisionBox(): RectF {
-        return fillRectF
-    }
+    override fun getCollisionBox(): RectF = fillRectF
 
-    override fun isAlive(): Boolean = _Y <= worldHeight
+    override fun isAlive(): Boolean = yPos <= worldHeight
 
     override fun kill() {
-
+        // unused
     }
 }

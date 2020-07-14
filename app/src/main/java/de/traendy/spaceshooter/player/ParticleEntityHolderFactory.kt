@@ -24,11 +24,11 @@ object ParticleEntityHolderFactory {
         style = Paint.Style.STROKE
     }
 
-    fun createPlayerParticleHolder():PlayerParticleEntitiyHolder{
-        return PlayerParticleEntitiyHolder(mPlayerPaint, mPlayerBorderPaint)
+    fun createPlayerParticleHolder():PlayerParticleEntityHolder{
+        return PlayerParticleEntityHolder(mPlayerPaint, mPlayerBorderPaint)
     }
 
-    fun createBossParticleHolder(): PlayerParticleEntitiyHolder {
-        return PlayerParticleEntitiyHolder(mBossPaint, mBossBorderPaint)
+    fun createBossParticleHolder(): PlayerParticleEntityHolder {
+        return PlayerParticleEntityHolder(mBossPaint, mBossBorderPaint)
     }
 }

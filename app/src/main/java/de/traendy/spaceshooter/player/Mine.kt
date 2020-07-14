@@ -5,20 +5,17 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.RectF
 import de.traendy.spaceshooter.engine.Entity
-import de.traendy.spaceshooter.engine.getAccelerateDecelerateInterpolator
-import de.traendy.spaceshooter.engine.getAnticipateInterpolator
-import kotlin.random.Random
 
-class Mine(private val worldHeight: Int, private val xPos: Int, private val yPos: Int, private val drift: Int):Entity {
+class Mine(
+    private val worldHeight: Int,
+    override var xPos: Float, override var yPos: Float, private val drift: Int
+) : Entity {
 
     private val collisionBox: RectF = RectF()
-    val mVelocity = 10
-    private var _X: Float = xPos.toFloat()
-    val mX = _X
-    private var _Y: Float = yPos.toFloat()
-    val mY = _Y
-    val mRadius = 60f
-    var hit = false
+    private val mVelocity = 10
+
+    private val mRadius = 60f
+    private var hit = false
 
     private val circleSolidPaint = Paint().apply {
         color = Color.parseColor("#FFFF2233")
@@ -31,17 +28,17 @@ class Mine(private val worldHeight: Int, private val xPos: Int, private val yPos
         style = Paint.Style.FILL
     }
 
-    override fun updatePosition(x: Int, y: Int) {
-        _Y += mVelocity
-        _X += drift
-        collisionBox.set(_X.toFloat(), _Y.toFloat(), _X + mRadius, _Y + mRadius)
+    override fun updatePosition(x: Float, y: Float) {
+        yPos += mVelocity
+        xPos += drift
+        collisionBox.set(xPos, yPos, xPos + mRadius, yPos + mRadius)
     }
 
     override fun draw(canvas: Canvas) {
         canvas.save()
         canvas.drawOval(collisionBox, circleFillPaint)
         canvas.drawOval(collisionBox, circleSolidPaint)
-        canvas.drawPoint(_X.toFloat(), _Y.toFloat(), circleSolidPaint)
+        canvas.drawPoint(xPos, yPos, circleSolidPaint)
         canvas.restore()
     }
 
@@ -49,9 +46,9 @@ class Mine(private val worldHeight: Int, private val xPos: Int, private val yPos
         return collisionBox
     }
 
-    override fun isAlive(): Boolean = _Y <= worldHeight + mRadius && !hit
+    override fun isAlive(): Boolean = yPos <= worldHeight + mRadius && !hit
 
     override fun kill() {
-       hit = true
+        hit = true
     }
 }
