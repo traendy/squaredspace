@@ -2,6 +2,7 @@ package de.traendy.spaceshooter.player
 
 
 import android.graphics.Canvas
+import de.traendy.spaceshooter.effects.Lightning
 import de.traendy.spaceshooter.engine.PrimitiveCollisionDetector
 import de.traendy.spaceshooter.engine.PrimitiveEntityHolder
 import de.traendy.spaceshooter.engine.Spawner
@@ -22,7 +23,7 @@ class MineEntityHolder(private val spawner: Spawner): PrimitiveEntityHolder<Mine
         }
     }
 
-    fun updateMines(canvas: Canvas, player: Player, gameState: GameState, boss: Boss) {
+    fun updateMines(canvas: Canvas, player: Player, gameState: GameState, boss: Boss, damageLightning: Lightning) {
         if(!boss.isAlive()) {
             prepareEntityDeletion(getAllEntities())
         }
@@ -30,6 +31,7 @@ class MineEntityHolder(private val spawner: Spawner): PrimitiveEntityHolder<Mine
             if(PrimitiveCollisionDetector().collided(mine, player) && mine.isAlive()){
                 mine.kill()
                 player.kill()
+                damageLightning.show()
             }
             if (!mine.isAlive()) {
                 prepareEntityDeletion(mine)

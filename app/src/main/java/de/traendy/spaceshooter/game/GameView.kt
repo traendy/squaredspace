@@ -11,6 +11,7 @@ import android.view.SurfaceHolder
 import android.view.SurfaceView
 import androidx.core.content.ContextCompat
 import de.traendy.spaceshooter.R
+import de.traendy.spaceshooter.effects.Lightning
 import de.traendy.spaceshooter.engine.FrameRate
 import de.traendy.spaceshooter.engine.PrimitiveCollisionDetector
 import de.traendy.spaceshooter.engine.Spawner
@@ -34,6 +35,7 @@ class GameView @JvmOverloads constructor(
     private var mViewHeight: Int = 0
     private lateinit var mGameThread: Thread
     private var mRunning: Boolean = false
+
     private val player = PlayerFactory.create()
 
     private val frameRate = FrameRate(16L)
@@ -78,6 +80,9 @@ class GameView @JvmOverloads constructor(
         textSize = 40f
     }
     private val hitPointsHud = HitPointsHud( 50f, 20f)
+    private val startLightning = Lightning()
+    private val damageLightning = Lightning(0.1f, 50)
+
 
     init {
         gameState.addObserver(this)
@@ -108,11 +113,14 @@ class GameView @JvmOverloads constructor(
                     player.draw(canvas)
                     drawHitpoints(canvas, player.hitPoints)
                     drawBoss(canvas)
+                    damageLightning.draw(canvas)
                 }
                 drawMeteors(canvas)
                 drawHud(canvas)
-                drawPlayerParticals(canvas)
-                drawBossParticals(canvas)
+                drawPlayerParticles(canvas)
+                drawBossParticles(canvas)
+
+                startLightning.draw(canvas)
                 canvas.restore()
                 mSurfaceHolder.unlockCanvasAndPost(canvas)
 
@@ -178,7 +186,7 @@ class GameView @JvmOverloads constructor(
             boss.getMineSpawnPosition().second,
             boss
         )
-        mineEntityHolder.updateMines(canvas, player, gameState, boss)
+        mineEntityHolder.updateMines(canvas, player, gameState, boss, damageLightning)
     }
 
     private fun updateSpawner(gameState: GameState) {
@@ -189,12 +197,12 @@ class GameView @JvmOverloads constructor(
         bossSpawner.updateInterval(gameState.bossSpawningInterval)
     }
 
-    private fun drawPlayerParticals(canvas: Canvas) {
+    private fun drawPlayerParticles(canvas: Canvas) {
         playerParticleEntityHolder.updatePosition(player.xPos, player.yPos)
         playerParticleEntityHolder.draw(canvas)
     }
 
-    private fun drawBossParticals(canvas: Canvas) {
+    private fun drawBossParticles(canvas: Canvas) {
         bossParticleEntityHolder.updatePosition(boss.xPos, boss.yPos)
         bossParticleEntityHolder.draw(canvas)
     }
@@ -234,7 +242,8 @@ class GameView @JvmOverloads constructor(
         meteorEntityHolder.updateMeteors(
             projectileEntityHolder.getAllEntities(),
             player,
-            canvas
+            canvas,
+            damageLightning
         )
         numberOfMeteors = meteorEntityHolder.getAllEntities().size
     }
@@ -283,8 +292,10 @@ class GameView @JvmOverloads constructor(
                 }
             } else {
                 player.revive()
+                startLightning.show()
                 bossSpawner.enable()
                 projectileSpawner.enable()
+                meteorEntityHolder.prepareEntityDeletion(meteorEntityHolder.getAllEntities())
                 player.setSpawn(mViewWidth / 2f, mViewHeight - 120f)
                 playerParticleEntityHolder.updateVisibility(true)
             }

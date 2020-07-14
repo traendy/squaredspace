@@ -3,6 +3,7 @@ package de.traendy.spaceshooter.player
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.RectF
+import de.traendy.spaceshooter.effects.Lightning
 import de.traendy.spaceshooter.engine.EntityFactory
 
 object PlayerFactory: EntityFactory<Player> {

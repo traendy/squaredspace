@@ -2,6 +2,7 @@ package de.traendy.spaceshooter.player
 
 import android.graphics.*
 import de.traendy.spaceshooter.BuildConfig
+import de.traendy.spaceshooter.effects.Lightning
 import de.traendy.spaceshooter.engine.Entity
 
 open class Player(

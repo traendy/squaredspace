@@ -2,6 +2,7 @@ package de.traendy.spaceshooter.player
 
 import android.graphics.Paint
 import android.graphics.RectF
+import de.traendy.spaceshooter.effects.Lightning
 
 class Boss(mPaint: Paint, rectF: RectF) : Player(mPaint, rectF) {
 

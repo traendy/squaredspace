@@ -42,7 +42,7 @@ class PowerUpEntityHolder(
         powerUp: PowerUp
     ) {
         player?.let {
-            if (collisionDetector.collided(powerUp, player) && powerUp.isAlive()) {
+            if (collisionDetector.collided(powerUp, player) && powerUp.isAlive() && player.isAlive()) {
                 powerUp.kill()
                 gameState.addPoint(10)
                 gameState.projectileSpawningInterval -= 16

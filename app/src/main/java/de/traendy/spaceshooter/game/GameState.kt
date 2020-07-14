@@ -31,10 +31,9 @@ class GameState( var startTime:Long): Observable() {
         gameTime = time - startTime
         setChanged()
         notifyObservers()
-        resetSpawner()
     }
 
-    private fun resetSpawner() {
+    private fun resetProjectileSpawner() {
         projectileSpawningInterval = 1008L
     }
 
@@ -57,5 +56,6 @@ class GameState( var startTime:Long): Observable() {
         points = 0
         setChanged()
         notifyObservers()
+        resetProjectileSpawner()
     }
 }

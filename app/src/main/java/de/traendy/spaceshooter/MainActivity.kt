@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.view.View
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.button.MaterialButton
@@ -20,6 +21,7 @@ class MainActivity : AppCompatActivity(), Observer {
     private lateinit var mHighScoreLabel: TextView
     private lateinit var mHighScoreValue: TextView
     private lateinit var mStartButton: MaterialButton
+    private lateinit var mHeadline: ImageView
     private var currentHighScore: Long = 0L
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -29,7 +31,9 @@ class MainActivity : AppCompatActivity(), Observer {
         mGameOverText = findViewById(R.id.gameOverText)
         mHighScoreLabel = findViewById(R.id.highScoreLabel)
         mHighScoreValue = findViewById(R.id.highScoreValue)
+        mHighScoreValue = findViewById(R.id.highScoreValue)
         mStartButton = findViewById(R.id.startButton)
+        mHeadline = findViewById(R.id.headline)
         mStartButton.setOnClickListener {
             resetGameState()
         }
@@ -43,6 +47,7 @@ class MainActivity : AppCompatActivity(), Observer {
         highScoreValue.text = currentHighScore.toString()
         highScoreLabel.visibility = View.VISIBLE
         highScoreValue.visibility = View.VISIBLE
+        mHeadline.visibility = View.VISIBLE
     }
 
     private fun resetGameState() {
@@ -68,6 +73,7 @@ class MainActivity : AppCompatActivity(), Observer {
                     mStartButton.visibility = View.GONE
                     highScoreLabel.visibility = View.GONE
                     highScoreValue.visibility = View.GONE
+                    mHeadline.visibility = View.GONE
                 }
             } else {
                 mGameView.gameState.deleteObserver(this)
@@ -80,6 +86,7 @@ class MainActivity : AppCompatActivity(), Observer {
                     saveHighScore(highScore)
                     highScoreLabel.visibility = View.VISIBLE
                     highScoreValue.visibility = View.VISIBLE
+                    mHeadline.visibility = View.VISIBLE
                 }
             }
         }
