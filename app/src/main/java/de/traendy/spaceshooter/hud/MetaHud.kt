@@ -49,7 +49,7 @@ class MetaHud {
 
     public fun drawHud(canvas: Canvas, hitPoints: Int, gameState:GameState, playerInvulnerability: Invulnerability) {
         canvas.drawText("P", 40f, 50f, textPointsPaint)
-        canvas.drawText("${gameState.highScore()} Points", 80f, 50f, textPaint)
+        canvas.drawText("${gameState.highScore()}", 80f, 50f, textPaint)
         canvas.drawText("S", 40f, 100f, textPowerUpPaint)
         canvas.drawText("${gameState.projectileSpawningInterval}", 80f, 100f, textPaint)
         canvas.drawText("T", 40f, 150f, textTimePaint)
