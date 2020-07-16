@@ -71,8 +71,8 @@ class PlayerParticle(
         this.visible = visible
     }
 
-    override fun getCollisionBox(): RectF {
-        return rectF
+    override fun getCollisionBox(): List<RectF> {
+        return listOf(rectF)
     }
 
     override fun isAlive(): Boolean {

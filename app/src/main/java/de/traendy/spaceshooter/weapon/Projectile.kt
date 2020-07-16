@@ -50,7 +50,7 @@ class Projectile(override var xPos: Float, override var yPos: Float, private val
         canvas.drawRect(rectTail, mPaintTail)
     }
 
-    override fun getCollisionBox(): RectF {
-        return _rect
+    override fun getCollisionBox(): List<RectF> {
+        return listOf(_rect)
     }
 }

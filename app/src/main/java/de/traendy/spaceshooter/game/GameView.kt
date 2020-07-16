@@ -2,21 +2,25 @@ package de.traendy.spaceshooter.game
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.Canvas
-import android.text.TextPaint
+import android.graphics.Picture
+import android.os.Build
 import android.util.AttributeSet
 import android.util.Log
 import android.view.MotionEvent
 import android.view.SurfaceHolder
 import android.view.SurfaceView
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.DrawableCompat
+import androidx.core.graphics.scale
 import de.traendy.spaceshooter.R
 import de.traendy.spaceshooter.effects.Lightning
 import de.traendy.spaceshooter.engine.FrameRate
 import de.traendy.spaceshooter.engine.PrimitiveCollisionDetector
 import de.traendy.spaceshooter.engine.Spawner
 import de.traendy.spaceshooter.enviroment.StarEntityHolder
-import de.traendy.spaceshooter.hud.HitPointsHud
+import de.traendy.spaceshooter.hud.MetaHud
 import de.traendy.spaceshooter.obstacle.MeteorEntityHolder
 import de.traendy.spaceshooter.player.*
 import de.traendy.spaceshooter.powerup.PowerUpEntityHolder
@@ -36,7 +40,27 @@ class GameView @JvmOverloads constructor(
     private lateinit var mGameThread: Thread
     private var mRunning: Boolean = false
 
-    private val player = PlayerFactory.create()
+//    private val player = PlayerFactory.create()
+
+    private val player = PlayerFactory.create(getBitmapFromVectorDrawable(context, R.drawable.spaceship))
+    private fun getBitmapFromVectorDrawable(
+        context: Context?,
+        drawableId: Int
+    ): Bitmap? {
+        var drawable =
+            ContextCompat.getDrawable(context!!, drawableId)
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            drawable = DrawableCompat.wrap(drawable!!).mutate()
+        }
+        val bitmap = Bitmap.createBitmap(
+            drawable!!.intrinsicWidth,
+            drawable.intrinsicHeight, Bitmap.Config.ARGB_8888
+        )
+        val canvas = Canvas(bitmap)
+        drawable.setBounds(0, 0, canvas.width, canvas.height)
+        drawable.draw(canvas)
+        return bitmap
+    }
 
     private val frameRate = FrameRate(16L)
     val gameState =
@@ -72,17 +96,10 @@ class GameView @JvmOverloads constructor(
     private val bossProjectileCollisionDetector = BossProjectileCollisionDetector()
     private val mineEntityHolder = MineEntityHolder(Spawner(gameState.mineSpawningInterval))
     private var numberOfMeteors = 0
-    private val textPaint = TextPaint().apply {
-        color = ContextCompat.getColor(
-            context,
-            R.color.whiteText
-        )
-        textSize = 40f
-    }
-    private val hitPointsHud = HitPointsHud( 50f, 20f)
+    private val metaHud = MetaHud()
     private val startLightning = Lightning()
     private val damageLightning = Lightning(0.1f, 50)
-
+    private val playerInvulnerability = Invulnerability()
 
     init {
         gameState.addObserver(this)
@@ -107,19 +124,16 @@ class GameView @JvmOverloads constructor(
                 )
                 drawStars(canvas)
                 drawPowerUps(canvas)
-
+                drawMeteors(canvas)
                 if (gameState.running && isPlayerAlive(player, gameState)) {
                     drawProjectiles(canvas)
                     player.draw(canvas)
-                    drawHitpoints(canvas, player.hitPoints)
                     drawBoss(canvas)
+//                    drawPlayerParticles(canvas)
+                    drawBossParticles(canvas)
+                    drawHud(canvas)
                     damageLightning.draw(canvas)
                 }
-                drawMeteors(canvas)
-                drawHud(canvas)
-                drawPlayerParticles(canvas)
-                drawBossParticles(canvas)
-
                 startLightning.draw(canvas)
                 canvas.restore()
                 mSurfaceHolder.unlockCanvasAndPost(canvas)
@@ -143,10 +157,9 @@ class GameView @JvmOverloads constructor(
         }
     }
 
-    private fun drawHitpoints(canvas: Canvas, hitPoints: Int) {
-        hitPointsHud.updateScreenWidth(mViewWidth.toFloat())
-        hitPointsHud.updateHitPoints(hitPoints)
-        hitPointsHud.draw(canvas)
+    private fun drawHud(canvas: Canvas) {
+        metaHud.updateScreenWidth(mViewWidth.toFloat())
+        metaHud.drawHud(canvas, player.hitPoints, gameState, playerInvulnerability)
     }
 
     private fun isPlayerAlive(player: Player, gameState: GameState): Boolean {
@@ -186,7 +199,7 @@ class GameView @JvmOverloads constructor(
             boss.getMineSpawnPosition().second,
             boss
         )
-        mineEntityHolder.updateMines(canvas, player, gameState, boss, damageLightning)
+        mineEntityHolder.updateMines(canvas, player, gameState, boss, damageLightning, playerInvulnerability)
     }
 
     private fun updateSpawner(gameState: GameState) {
@@ -212,16 +225,6 @@ class GameView @JvmOverloads constructor(
         powerUpEntityHolder.updatePowerUps(player, canvas)
     }
 
-    private fun drawHud(canvas: Canvas) {
-        if(gameState.running) {
-            canvas.drawText("${gameState.highScore()} Points", 80f, 50f, textPaint)
-            canvas.drawText("${gameState.projectileSpawningInterval} RT", 80f, 100f, textPaint)
-            val time = (System.currentTimeMillis() - gameState.startTime) / 1000
-            canvas.drawText("$time s", 80f, 150f, textPaint)
-        }
-        //        canvas.drawText("$numberOfMeteors", 120f, 100f, textPaint)
-    }
-
     private fun drawStars(canvas: Canvas) {
         starEntityHolder.spawnStars(mViewHeight.toFloat(), mViewWidth.toFloat())
         starEntityHolder.updateStars(canvas)
@@ -243,7 +246,8 @@ class GameView @JvmOverloads constructor(
             projectileEntityHolder.getAllEntities(),
             player,
             canvas,
-            damageLightning
+            damageLightning,
+            playerInvulnerability
         )
         numberOfMeteors = meteorEntityHolder.getAllEntities().size
     }
@@ -291,6 +295,7 @@ class GameView @JvmOverloads constructor(
                     boss.kill()
                 }
             } else {
+                playerInvulnerability.activateInvulnerability(System.currentTimeMillis(), 3000L)
                 player.revive()
                 startLightning.show()
                 bossSpawner.enable()

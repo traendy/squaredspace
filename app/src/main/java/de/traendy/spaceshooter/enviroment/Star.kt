@@ -43,7 +43,7 @@ class Star(private val worldHeight: Float, override val xPos: Float) :
         canvas.drawRect(fillRectF, fillPaint)
     }
 
-    override fun getCollisionBox(): RectF = fillRectF
+    override fun getCollisionBox(): List<RectF> = listOf(fillRectF)
 
     override fun isAlive(): Boolean = yPos <= worldHeight
 

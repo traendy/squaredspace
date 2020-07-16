@@ -8,11 +8,11 @@ import kotlin.random.Random
 class ProjectileEntityHolder(private val spawner: Spawner):
     PrimitiveEntityHolder<Projectile>() {
 
-    fun spawnProjectiles(spawnY:Int, spawnX:Int){
+    fun spawnProjectiles(spawnX:Int, spawnY:Int){
         if (spawner.spawn()) {
             val projectile = Projectile(
-                spawnY.toFloat(),
                 spawnX.toFloat(),
+                spawnY.toFloat() - 50,
                 Random.nextInt(-2, 3)
             )
             prepareEntityAddition(projectile)

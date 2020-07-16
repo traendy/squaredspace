@@ -8,7 +8,7 @@ interface Entity {
     val yPos: Float
     fun updatePosition(x:Float, y:Float)
     fun draw(canvas: Canvas)
-    fun getCollisionBox():RectF
+    fun getCollisionBox():List<RectF>
     fun isAlive():Boolean
     fun kill()
 }

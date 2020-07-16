@@ -4,6 +4,7 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.RectF
+import de.traendy.spaceshooter.player.Invulnerability
 
 class HitPointsHud(
     private val size: Float,
@@ -11,7 +12,8 @@ class HitPointsHud(
 ) {
 
     private var screenWidth: Float = 0f
-    private var numberOfHitpoints = 0
+    private var numberOfHitPoints = 0
+    private var indicateVulnerability = false;
     private val mPlayerPaint = Paint().apply {
         color = Color.parseColor("#5500AA33")
         strokeWidth = 10f
@@ -20,6 +22,13 @@ class HitPointsHud(
         color = Color.parseColor("#CC00AA33")
         strokeWidth = 5f
         style = Paint.Style.STROKE
+    }
+
+    private val mShieldPaint = Paint().apply {
+        color = Color.parseColor("#CCCCCCCC")
+        strokeWidth = 10f
+        style = Paint.Style.STROKE
+        isAntiAlias = true
     }
 
     public fun updateScreenWidth(width: Float) {
@@ -37,14 +46,20 @@ class HitPointsHud(
         )
     }
 
-    public fun updateHitPoints(hitpoints: Int) {
-        numberOfHitpoints = hitpoints
+    public fun updateHitPoints(hitPoints: Int, playerInvulnerability: Invulnerability) {
+        numberOfHitPoints = hitPoints
+        indicateVulnerability = playerInvulnerability.isVulnerable(System.currentTimeMillis())
+
     }
 
     fun draw(canvas: Canvas) {
-        for (i in 1..numberOfHitpoints) {
+        for (i in 1..numberOfHitPoints) {
             canvas.drawRect(mRectF, mPlayerPaint)
-            canvas.drawRect(mRectF, mPlayerBorderPaint)
+            if (indicateVulnerability) {
+                canvas.drawRect(mRectF, mPlayerBorderPaint)
+            } else {
+                canvas.drawRect(mRectF, mShieldPaint)
+            }
             mRectF.offset(-(size + distance), 0f)
         }
 

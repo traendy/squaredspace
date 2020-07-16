@@ -1,8 +1,6 @@
 package de.traendy.spaceshooter.player
 
-import android.graphics.Color
-import android.graphics.Paint
-import android.graphics.RectF
+import android.graphics.*
 import de.traendy.spaceshooter.effects.Lightning
 import de.traendy.spaceshooter.engine.EntityFactory
 
@@ -14,6 +12,17 @@ object PlayerFactory: EntityFactory<Player> {
                 strokeWidth = 10f
                 style = Paint.Style.STROKE
             }, RectF()
+        )
+    }
+
+    fun create(bitmap: Bitmap?):Player{
+        return Player(
+            Paint().apply {
+                color = Color.parseColor("#FFFFFFFF")
+                strokeWidth = 10f
+                style = Paint.Style.STROKE
+            }, RectF(),
+            bitmap
         )
     }
 

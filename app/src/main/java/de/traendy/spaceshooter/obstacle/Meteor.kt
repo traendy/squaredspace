@@ -65,8 +65,8 @@ class Meteor(private val worldHeight: Int, override var xPos: Float) :
         canvas.restore()
     }
 
-    override fun getCollisionBox(): RectF {
-        return fillRect
+    override fun getCollisionBox(): List<RectF> {
+        return listOf(fillRect)
     }
 
     override fun isAlive(): Boolean = yPos <= worldHeight + radius && !shot

@@ -69,8 +69,8 @@ class PowerUp(private val worldHeight: Float, override var xPos: Float) :
         canvas.restore()
     }
 
-    override fun getCollisionBox(): RectF {
-        return circleSolidRect
+    override fun getCollisionBox(): List<RectF> {
+        return listOf(circleSolidRect)
     }
 
     override fun isAlive(): Boolean = yPos <= worldHeight && !consumed

@@ -8,6 +8,12 @@ import android.graphics.RectF
 class PrimitiveCollisionDetector:
     CollisionDetector {
     override fun collided(aggressor: Entity, target: Entity): Boolean {
-        return RectF.intersects(aggressor.getCollisionBox(),target.getCollisionBox())
+        val collided = false
+        aggressor.getCollisionBox().forEach { aggressorBox ->
+            target.getCollisionBox().forEach{targetBox->
+                if(RectF.intersects(aggressorBox,targetBox)) return true
+            }
+        }
+        return false
     }
 }

@@ -36,14 +36,14 @@ class Mine(
 
     override fun draw(canvas: Canvas) {
         canvas.save()
-        canvas.drawOval(collisionBox, circleFillPaint)
-        canvas.drawOval(collisionBox, circleSolidPaint)
-        canvas.drawPoint(xPos, yPos, circleSolidPaint)
+        canvas.drawRect(collisionBox, circleFillPaint)
+        canvas.drawRect(collisionBox, circleSolidPaint)
+        canvas.drawPoint(xPos-10, yPos-10, circleSolidPaint)
         canvas.restore()
     }
 
-    override fun getCollisionBox(): RectF {
-        return collisionBox
+    override fun getCollisionBox(): List<RectF> {
+        return listOf(collisionBox)
     }
 
     override fun isAlive(): Boolean = yPos <= worldHeight + mRadius && !hit

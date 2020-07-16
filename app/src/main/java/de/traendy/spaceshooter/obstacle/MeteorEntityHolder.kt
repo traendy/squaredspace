@@ -7,6 +7,7 @@ import de.traendy.spaceshooter.engine.Entity
 import de.traendy.spaceshooter.engine.PrimitiveEntityHolder
 import de.traendy.spaceshooter.engine.Spawner
 import de.traendy.spaceshooter.game.GameState
+import de.traendy.spaceshooter.player.Invulnerability
 import de.traendy.spaceshooter.player.Player
 import kotlin.random.Random
 
@@ -29,7 +30,7 @@ class MeteorEntityHolder(
         }
     }
 
-    fun updateMeteors(dangerousEntities: List<Entity>, player: Player?, canvas: Canvas, damageEffect: Lightning) {
+    fun updateMeteors(dangerousEntities: List<Entity>, player: Player?, canvas: Canvas, damageEffect: Lightning, playerInvulnerability: Invulnerability) {
         getAllEntities().forEach { meteor ->
             detectDestruction(dangerousEntities, meteor)
             if (!meteor.isAlive()) {
@@ -37,7 +38,7 @@ class MeteorEntityHolder(
             } else {
                 meteor.updatePosition(0f, 0f)
                 meteor.draw(canvas)
-                detectPlayerCollision(player, meteor, damageEffect)
+                detectPlayerCollision(player, meteor, damageEffect, playerInvulnerability)
             }
         }
     }
@@ -45,13 +46,15 @@ class MeteorEntityHolder(
     private fun detectPlayerCollision(
         player: Player?,
         meteor: Meteor,
-        damageEffect: Lightning
+        damageEffect: Lightning,
+        playerInvulnerability: Invulnerability
     ) {
         player?.let {
-            if (collisionDetector.collided(meteor, player) && meteor.isAlive() && player.isAlive()) {
+            if (collisionDetector.collided(meteor, player) && meteor.isAlive() && player.isAlive() && playerInvulnerability.isVulnerable(System.currentTimeMillis())) {
                 meteor.kill()
                 player.kill()
                 damageEffect.show()
+                playerInvulnerability.activateInvulnerability(System.currentTimeMillis(), 3000L)
             }
         }
     }

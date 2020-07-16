@@ -23,15 +23,16 @@ class MineEntityHolder(private val spawner: Spawner): PrimitiveEntityHolder<Mine
         }
     }
 
-    fun updateMines(canvas: Canvas, player: Player, gameState: GameState, boss: Boss, damageLightning: Lightning) {
+    fun updateMines(canvas: Canvas, player: Player, gameState: GameState, boss: Boss, damageLightning: Lightning, playerInvulnerability: Invulnerability) {
         if(!boss.isAlive()) {
             prepareEntityDeletion(getAllEntities())
         }
         getAllEntities().forEach { mine ->
-            if(PrimitiveCollisionDetector().collided(mine, player) && mine.isAlive()){
+            if(PrimitiveCollisionDetector().collided(mine, player) && mine.isAlive() && player.isAlive() && playerInvulnerability.isVulnerable(System.currentTimeMillis())){
                 mine.kill()
                 player.kill()
                 damageLightning.show()
+                playerInvulnerability.activateInvulnerability(System.currentTimeMillis(), 3000L)
             }
             if (!mine.isAlive()) {
                 prepareEntityDeletion(mine)
