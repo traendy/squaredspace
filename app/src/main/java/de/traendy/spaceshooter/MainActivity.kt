@@ -20,6 +20,8 @@ class MainActivity : AppCompatActivity(), Observer {
     private lateinit var mGameOverText: TextView
     private lateinit var mHighScoreLabel: TextView
     private lateinit var mHighScoreValue: TextView
+    private lateinit var version: TextView
+    private lateinit var thanks: TextView
     private lateinit var mStartButton: MaterialButton
     private lateinit var mHeadline: ImageView
     private var currentHighScore: Long = 0L
@@ -31,7 +33,9 @@ class MainActivity : AppCompatActivity(), Observer {
         mGameOverText = findViewById(R.id.gameOverText)
         mHighScoreLabel = findViewById(R.id.highScoreLabel)
         mHighScoreValue = findViewById(R.id.highScoreValue)
-        mHighScoreValue = findViewById(R.id.highScoreValue)
+        version = findViewById(R.id.version)
+        thanks = findViewById(R.id.specialThanks)
+
         mStartButton = findViewById(R.id.startButton)
         mHeadline = findViewById(R.id.headline)
         mStartButton.setOnClickListener {
@@ -47,6 +51,9 @@ class MainActivity : AppCompatActivity(), Observer {
         highScoreValue.text = currentHighScore.toString()
         highScoreLabel.visibility = View.VISIBLE
         highScoreValue.visibility = View.VISIBLE
+        version.visibility = View.VISIBLE
+        version.text = BuildConfig.VERSION_NAME
+        thanks.visibility = View.VISIBLE
         mHeadline.visibility = View.VISIBLE
     }
 
@@ -74,6 +81,8 @@ class MainActivity : AppCompatActivity(), Observer {
                     highScoreLabel.visibility = View.GONE
                     highScoreValue.visibility = View.GONE
                     mHeadline.visibility = View.GONE
+                    version.visibility = View.GONE
+                    thanks.visibility = View.GONE
                 }
             } else {
                 mGameView.gameState.deleteObserver(this)
@@ -87,6 +96,8 @@ class MainActivity : AppCompatActivity(), Observer {
                     highScoreLabel.visibility = View.VISIBLE
                     highScoreValue.visibility = View.VISIBLE
                     mHeadline.visibility = View.VISIBLE
+                    version.visibility = View.VISIBLE
+                    thanks.visibility = View.VISIBLE
                 }
             }
         }

@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
-import android.graphics.Picture
 import android.os.Build
 import android.util.AttributeSet
 import android.util.Log
@@ -13,9 +12,10 @@ import android.view.SurfaceHolder
 import android.view.SurfaceView
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
-import androidx.core.graphics.scale
 import de.traendy.spaceshooter.R
 import de.traendy.spaceshooter.effects.Lightning
+import de.traendy.spaceshooter.effects.getBlack
+import de.traendy.spaceshooter.effects.getWhite50
 import de.traendy.spaceshooter.engine.FrameRate
 import de.traendy.spaceshooter.engine.PrimitiveCollisionDetector
 import de.traendy.spaceshooter.engine.Spawner
@@ -39,8 +39,6 @@ class GameView @JvmOverloads constructor(
     private var mViewHeight: Int = 0
     private lateinit var mGameThread: Thread
     private var mRunning: Boolean = false
-
-//    private val player = PlayerFactory.create()
 
     private val player = PlayerFactory.create(getBitmapFromVectorDrawable(context, R.drawable.spaceship))
     private fun getBitmapFromVectorDrawable(
@@ -98,7 +96,9 @@ class GameView @JvmOverloads constructor(
     private var numberOfMeteors = 0
     private val metaHud = MetaHud()
     private val startLightning = Lightning()
-    private val damageLightning = Lightning(0.1f, 50)
+    private val damageLightning = Lightning(0.1f, getWhite50())
+    private val endGameBlend = Lightning(0.01f, getBlack())
+
     private val playerInvulnerability = Invulnerability()
 
     init {
@@ -129,12 +129,12 @@ class GameView @JvmOverloads constructor(
                     drawProjectiles(canvas)
                     player.draw(canvas)
                     drawBoss(canvas)
-//                    drawPlayerParticles(canvas)
                     drawBossParticles(canvas)
                     drawHud(canvas)
                     damageLightning.draw(canvas)
                 }
                 startLightning.draw(canvas)
+                endGameBlend.draw(canvas)
                 canvas.restore()
                 mSurfaceHolder.unlockCanvasAndPost(canvas)
 
@@ -208,11 +208,6 @@ class GameView @JvmOverloads constructor(
         starSpawner.updateInterval(gameState.starSpawningInterval)
         powerUpSpawner.updateInterval(gameState.powerUpSpawningInterval)
         bossSpawner.updateInterval(gameState.bossSpawningInterval)
-    }
-
-    private fun drawPlayerParticles(canvas: Canvas) {
-        playerParticleEntityHolder.updatePosition(player.xPos, player.yPos)
-        playerParticleEntityHolder.draw(canvas)
     }
 
     private fun drawBossParticles(canvas: Canvas) {
@@ -294,6 +289,7 @@ class GameView @JvmOverloads constructor(
                 repeat(3){
                     boss.kill()
                 }
+                endGameBlend.show()
             } else {
                 playerInvulnerability.activateInvulnerability(System.currentTimeMillis(), 3000L)
                 player.revive()
