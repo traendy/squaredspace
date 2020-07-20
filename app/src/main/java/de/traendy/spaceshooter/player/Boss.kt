@@ -5,6 +5,7 @@ import android.graphics.Paint
 import android.graphics.RectF
 import de.traendy.spaceshooter.BuildConfig
 import de.traendy.spaceshooter.engine.Entity
+import de.traendy.spaceshooter.engine.getCircleInterpolator
 
 class Boss(private val mPaint: Paint, private val rectF: RectF) : Entity {
 
@@ -15,12 +16,20 @@ class Boss(private val mPaint: Paint, private val rectF: RectF) : Entity {
     private val mHeight = 150f
     private var hitPoints = 3
     private var living = false
+    private var interpolatorPosition = 0.0f
 
     override fun updatePosition(x: Float, y: Float) {
         xPos = updateRelativePosition(x)
         if (yPos < 100) {
             yPos += 10
+        }else{
+            yPos = 100 + getCircleInterpolator(interpolatorPosition, 0.5f)*200f
+            interpolatorPosition += 0.01f
+            if(interpolatorPosition >= 1f){
+                interpolatorPosition = 0.0f
+            }
         }
+
         rectF.set(xPos, yPos, xPos + mWith, yPos + mHeight)
         rectF.offset(-mWith / 2, -mHeight / 2)
     }
@@ -60,6 +69,7 @@ class Boss(private val mPaint: Paint, private val rectF: RectF) : Entity {
         hitPoints--
         if (hitPoints <= 0) {
             living = false
+            interpolatorPosition = 0.0f
         }
     }
 

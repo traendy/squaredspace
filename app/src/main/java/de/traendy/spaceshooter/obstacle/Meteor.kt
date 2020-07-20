@@ -2,18 +2,19 @@ package de.traendy.spaceshooter.obstacle
 
 import android.graphics.*
 import de.traendy.spaceshooter.engine.Entity
+import de.traendy.spaceshooter.engine.getCircleInterpolator
 import de.traendy.spaceshooter.engine.getDecelerateInterpolation
 import de.traendy.spaceshooter.game.GameConfig
 import kotlin.random.Random
 
-class Meteor(private val worldHeight: Int, override var xPos: Float) :
+class Meteor(private val worldHeight: Int, private val worldWidth: Int, override var xPos: Float) :
     Entity {
     override var yPos: Float = -150f
-    private var radius = GameConfig.meteorBaseSize + Random.nextInt(100)
+    private var radius = GameConfig.meteorBaseSize + 150 * (getCircleInterpolator(Random.nextFloat(),0.5f))//Random.nextInt(150)
     private var mVelocity = GameConfig.meteorBaseVelocity + Random.nextInt(12)
-    private var destructionAngle = 0
+    private var destructionAngle = 0f
     private var shot = false
-
+    var damage = radius.toInt()
     private var angle = Random.nextInt(720)
     private val rotationSpeed = Random.nextInt(1, 3)
     private var direction = if (Random.nextBoolean()) 1 else -1
@@ -38,7 +39,7 @@ class Meteor(private val worldHeight: Int, override var xPos: Float) :
 
     override fun updatePosition(x: Float, y: Float) {
 
-        yPos += mVelocity * getDecelerateInterpolation(interpolationPosition, 1.0f)
+        yPos += mVelocity
         xPos += destructionAngle * getDecelerateInterpolation(interpolationPosition, 1.0f)
         if (interpolationPosition < 1.0) {
             interpolationPosition += 0.01f
@@ -69,7 +70,7 @@ class Meteor(private val worldHeight: Int, override var xPos: Float) :
         return listOf(fillRect)
     }
 
-    override fun isAlive(): Boolean = yPos <= worldHeight + radius && !shot
+    override fun isAlive(): Boolean = yPos <= worldHeight + radius && !shot && xPos >= 0-radius && xPos <= worldWidth + radius
 
     override fun kill() {
         shot = true
@@ -85,11 +86,11 @@ class Meteor(private val worldHeight: Int, override var xPos: Float) :
     }
 
     private fun clone(): Meteor {
-        val meteor = Meteor(worldHeight, xPos)
-        radius /= 2
+        val meteor = Meteor(worldHeight, worldWidth, xPos)
+        radius /= 1.5f
         meteor.radius = radius
-        destructionAngle = Random.nextInt(1, 2)
-        meteor.destructionAngle = Random.nextInt(-3, -1)
+        destructionAngle = 3 * getCircleInterpolator(Random.nextFloat(),1f)//Random.nextInt(1, 2)
+        meteor.destructionAngle = 3 * getCircleInterpolator(Random.nextFloat(), 1f)
         meteor.mVelocity = mVelocity + Random.nextInt(-3, 1)
         mVelocity += Random.nextInt(-3, 1)
 

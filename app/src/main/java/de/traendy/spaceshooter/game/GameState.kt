@@ -1,61 +1,37 @@
 package de.traendy.spaceshooter.game
 
-import java.util.*
+import android.util.Log
 
-class GameState( var startTime:Long): Observable() {
+interface GameState<T> {
 
-    val mineSpawningInterval= 704L
-    val bossSpawningInterval = 60*1000*16/8L/8
-    var running:Boolean = false
-    private var points = 0
-    private var gameTime = 0L
-    var meteorSpawningInterval = 704L
-    var projectileSpawningInterval = 1008L
-    set(value) {
-        if(field > 256){
-            field = value
-        }else if(value == 1008L){
-            field = value
-        }
+
+    abstract fun handle(info:T):GameState<T>
+}
+
+object Menu:GameState<Unit> {
+    override fun handle(info: Unit): GameState<Unit> {
+        Log.d("GameState", "Menu")
+        return GameStart
     }
-    var starSpawningInterval = 208L
-    var powerUpSpawningInterval = 5008L
+}
 
-
-
-
-    fun timeSurvived():Long = gameTime
-
-    fun lose(time:Long){
-        running = false
-        gameTime = time - startTime
-        setChanged()
-        notifyObservers()
+object GameStart : GameState<Unit> {
+    override fun handle(info: Unit): GameState<Unit> {
+        Log.d("GameState", "GameStart")
+        return GameRunning
     }
+}
 
-    private fun resetProjectileSpawner() {
-        projectileSpawningInterval = 1008L
+object GameRunning : GameState<Unit> {
+    override fun handle(info: Unit): GameState<Unit> {
+        Log.d("GameState", "GameRunning")
+        return GameEnd
     }
+}
 
-    fun addPoint(){
-        points++
-    }
-
-    fun addPoint(point:Int) {
-        points += point
-    }
-
-    fun highScore():Long{
-        return points * 16 + (System.currentTimeMillis() - startTime) / 1000
-    }
-
-    fun reset() {
-        startTime = System.currentTimeMillis()
-        gameTime = 0L
-        running = true
-        points = 0
-        setChanged()
-        notifyObservers()
-        resetProjectileSpawner()
+object GameEnd : GameState<Unit> {
+    override fun handle(info: Unit): GameState<Unit> {
+        Log.d("GameState", "GameEnd")
+        return Menu
     }
 }

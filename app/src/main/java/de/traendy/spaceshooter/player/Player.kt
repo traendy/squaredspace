@@ -3,17 +3,19 @@ package de.traendy.spaceshooter.player
 import android.graphics.*
 import de.traendy.spaceshooter.BuildConfig
 import de.traendy.spaceshooter.engine.Entity
+import de.traendy.spaceshooter.game.GameRunning
+import de.traendy.spaceshooter.game.StateMediator
 
 open class Player(
     private val mPaint: Paint,
-    protected val rectF: RectF,
+    private val rectF: RectF,
     private val bitmap: Bitmap? = null
 ) : Entity {
 
     override var xPos: Float = 0f
     override var yPos: Float = 0f
-    val mWith = 100f
-    val mHeight = 250f
+    private val mWith = 100f
+    private val mHeight = 250f
     open var hitPoints = 3
     private val mWidth2 = 250f
     private val mHeight2 = 70f
@@ -25,8 +27,13 @@ open class Player(
         setPositionBox(posX, posY)
     }
 
+    fun updatePositionBeforeGameStart(posX: Float){
+        yPos -= 5f
+        setPositionBox(posX, yPos)
+    }
+
     override fun updatePosition(x: Float, y: Float) {
-        if (inBounds(x, y)) {
+        if (inBounds(x, y) && StateMediator.getState() is GameRunning) {
             setPositionBox(x, y)
         }
     }

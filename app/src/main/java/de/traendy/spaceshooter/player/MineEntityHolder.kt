@@ -6,7 +6,6 @@ import de.traendy.spaceshooter.effects.Lightning
 import de.traendy.spaceshooter.engine.PrimitiveCollisionDetector
 import de.traendy.spaceshooter.engine.PrimitiveEntityHolder
 import de.traendy.spaceshooter.engine.Spawner
-import de.traendy.spaceshooter.game.GameState
 import kotlin.random.Random
 
 class MineEntityHolder(private val spawner: Spawner): PrimitiveEntityHolder<Mine>() {
@@ -23,10 +22,7 @@ class MineEntityHolder(private val spawner: Spawner): PrimitiveEntityHolder<Mine
         }
     }
 
-    fun updateMines(canvas: Canvas, player: Player, gameState: GameState, boss: Boss, damageLightning: Lightning, playerInvulnerability: Invulnerability) {
-        if(!boss.isAlive()) {
-            prepareEntityDeletion(getAllEntities())
-        }
+    fun updateMines(canvas: Canvas, player: Player, damageLightning: Lightning, playerInvulnerability: Invulnerability) {
         getAllEntities().forEach { mine ->
             if(PrimitiveCollisionDetector().collided(mine, player) && mine.isAlive() && player.isAlive() && playerInvulnerability.isVulnerable(System.currentTimeMillis())){
                 mine.kill()

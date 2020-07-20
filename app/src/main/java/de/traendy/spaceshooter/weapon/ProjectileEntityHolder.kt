@@ -3,6 +3,7 @@ package de.traendy.spaceshooter.weapon
 import android.graphics.Canvas
 import de.traendy.spaceshooter.engine.PrimitiveEntityHolder
 import de.traendy.spaceshooter.engine.Spawner
+import de.traendy.spaceshooter.engine.getCircleInterpolator
 import kotlin.random.Random
 
 class ProjectileEntityHolder(private val spawner: Spawner):
@@ -13,7 +14,7 @@ class ProjectileEntityHolder(private val spawner: Spawner):
             val projectile = Projectile(
                 spawnX.toFloat(),
                 spawnY.toFloat() - 50,
-                Random.nextInt(-2, 3)
+                 getCircleInterpolator(Random.nextFloat(), 1f)
             )
             prepareEntityAddition(projectile)
         }

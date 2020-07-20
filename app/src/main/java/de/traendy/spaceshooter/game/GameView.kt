@@ -25,14 +25,13 @@ import de.traendy.spaceshooter.obstacle.MeteorEntityHolder
 import de.traendy.spaceshooter.player.*
 import de.traendy.spaceshooter.powerup.PowerUpEntityHolder
 import de.traendy.spaceshooter.weapon.ProjectileEntityHolder
-import java.util.*
 
 
 private const val TAG = "GameView"
 
 class GameView @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
-) : SurfaceView(context, attrs, defStyleAttr), Runnable, Observer {
+) : SurfaceView(context, attrs, defStyleAttr), Runnable, /*Observer,*/ StateMediator.Listener {
 
     private var mSurfaceHolder: SurfaceHolder = holder
     private var mViewWidth: Int = 0
@@ -62,7 +61,7 @@ class GameView @JvmOverloads constructor(
 
     private val frameRate = FrameRate(16L)
     val gameState =
-        GameState(System.currentTimeMillis())
+        OldGameState(System.currentTimeMillis())
     private val meteorSpawner = Spawner(gameState.meteorSpawningInterval)
     private val meteorEntityHolder =
         MeteorEntityHolder(
@@ -85,8 +84,7 @@ class GameView @JvmOverloads constructor(
     private val starSpawner = Spawner(gameState.starSpawningInterval)
     private val starEntityHolder =
         StarEntityHolder(starSpawner)
-    private val playerParticleEntityHolder =
-        ParticleEntityHolderFactory.createPlayerParticleHolder()
+
 
     private val bossParticleEntityHolder = ParticleEntityHolderFactory.createBossParticleHolder()
     private val bossSpawner = Spawner(gameState.bossSpawningInterval)
@@ -95,14 +93,43 @@ class GameView @JvmOverloads constructor(
     private val mineEntityHolder = MineEntityHolder(Spawner(gameState.mineSpawningInterval))
     private var numberOfMeteors = 0
     private val metaHud = MetaHud()
-    private val startLightning = Lightning()
+    private val startLightning = Lightning(state = object :Lightning.State{
+        override fun start() {
+
+        }
+
+        override fun half() {
+            Log.d("LIGHTNIGSTATE", "Called")
+        }
+
+        override fun done() {
+//            state = state.handle(Unit)
+            StateMediator.progressState()
+        }
+
+    })
     private val damageLightning = Lightning(0.1f, getWhite50())
-    private val endGameBlend = Lightning(0.01f, getBlack())
+    private val endGameBlend = Lightning(0.01f, getBlack(), state = object : Lightning.State {
+        override fun start() {
+
+        }
+
+        override fun half() {
+            Log.d("LIGHTNIGSTATE", "Called")
+        }
+
+        override fun done() {
+//             state = state . handle (Unit)
+            StateMediator.progressState()
+        }
+
+    })
 
     private val playerInvulnerability = Invulnerability()
 
     init {
-        gameState.addObserver(this)
+//        gameState.addObserver(this)
+        StateMediator.register(this)
     }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
@@ -123,18 +150,33 @@ class GameView @JvmOverloads constructor(
                     )
                 )
                 drawStars(canvas)
-                drawPowerUps(canvas)
                 drawMeteors(canvas)
-                if (gameState.running && isPlayerAlive(player, gameState)) {
-                    drawProjectiles(canvas)
-                    player.draw(canvas)
-                    drawBoss(canvas)
-                    drawBossParticles(canvas)
-                    drawHud(canvas)
-                    damageLightning.draw(canvas)
+                when(StateMediator.getState()){
+                    is Menu -> {
+
+                    }
+                    is GameStart -> {
+                        startLightning.draw(canvas)
+                        player.draw(canvas)
+                        player.updatePositionBeforeGameStart(mViewWidth / 2f)
+                    }
+                    is GameRunning -> {
+                        drawPowerUps(canvas)
+
+                        if (gameState.running && isPlayerAlive(player, gameState)) {
+                            drawProjectiles(canvas)
+                            player.draw(canvas)
+                            drawBoss(canvas)
+                            drawBossParticles(canvas)
+                            drawHud(canvas)
+                            damageLightning.draw(canvas)
+                        }
+                    }
+                    is GameEnd -> {
+                        endGameBlend.draw(canvas)
+                    }
                 }
-                startLightning.draw(canvas)
-                endGameBlend.draw(canvas)
+
                 canvas.restore()
                 mSurfaceHolder.unlockCanvasAndPost(canvas)
 
@@ -146,8 +188,6 @@ class GameView @JvmOverloads constructor(
                 projectileEntityHolder.executePreparedAddition()
                 starEntityHolder.executePreparedDeletion()
                 starEntityHolder.executePreparedAddition()
-                playerParticleEntityHolder.executePreparedDeletion()
-                playerParticleEntityHolder.executePreparedAddition()
                 bossParticleEntityHolder.executePreparedDeletion()
                 bossParticleEntityHolder.executePreparedAddition()
                 mineEntityHolder.executePreparedAddition()
@@ -162,10 +202,10 @@ class GameView @JvmOverloads constructor(
         metaHud.drawHud(canvas, player.hitPoints, gameState, playerInvulnerability)
     }
 
-    private fun isPlayerAlive(player: Player, gameState: GameState): Boolean {
+    private fun isPlayerAlive(player: Player, oldGameState: OldGameState): Boolean {
         return if(player.isAlive()) true
         else {
-            gameState.lose(System.currentTimeMillis())
+            oldGameState.lose(System.currentTimeMillis())
             false
         }
     }
@@ -181,33 +221,34 @@ class GameView @JvmOverloads constructor(
         }
         if (!boss.isAlive()) {
             bossParticleEntityHolder.updateVisibility(false)
-            mineEntityHolder.prepareEntityDeletion(mineEntityHolder.getAllEntities())
+//            mineEntityHolder.prepareEntityDeletion(mineEntityHolder.getAllEntities())
             bossSpawner.enable()
         } else {
             bossSpawner.disable()
             bossParticleEntityHolder.updateVisibility(true)
             boss.updatePosition(player.xPos, 100f)
             boss.draw(canvas)
-            drawMines(canvas)
+            mineEntityHolder.spawnMines(
+                mViewHeight,
+                boss.getMineSpawnPosition().first,
+                boss.getMineSpawnPosition().second,
+                boss
+            )
         }
-    }
-
-    private fun drawMines(canvas: Canvas) {
-        mineEntityHolder.spawnMines(
-            mViewHeight,
-            boss.getMineSpawnPosition().first,
-            boss.getMineSpawnPosition().second,
-            boss
+        mineEntityHolder.updateMines(
+            canvas,
+            player,
+            damageLightning,
+            playerInvulnerability
         )
-        mineEntityHolder.updateMines(canvas, player, gameState, boss, damageLightning, playerInvulnerability)
     }
 
-    private fun updateSpawner(gameState: GameState) {
-        projectileSpawner.updateInterval(gameState.projectileSpawningInterval)
-        meteorSpawner.updateInterval(gameState.meteorSpawningInterval)
-        starSpawner.updateInterval(gameState.starSpawningInterval)
-        powerUpSpawner.updateInterval(gameState.powerUpSpawningInterval)
-        bossSpawner.updateInterval(gameState.bossSpawningInterval)
+    private fun updateSpawner(oldGameState: OldGameState) {
+        projectileSpawner.updateInterval(oldGameState.projectileSpawningInterval)
+        meteorSpawner.updateInterval(oldGameState.meteorSpawningInterval)
+        starSpawner.updateInterval(oldGameState.starSpawningInterval)
+        powerUpSpawner.updateInterval(oldGameState.powerUpSpawningInterval)
+        bossSpawner.updateInterval(oldGameState.bossSpawningInterval)
     }
 
     private fun drawBossParticles(canvas: Canvas) {
@@ -216,7 +257,7 @@ class GameView @JvmOverloads constructor(
     }
 
     private fun drawPowerUps(canvas: Canvas) {
-        powerUpEntityHolder.spawnPowerUp(mViewHeight, mViewWidth)
+        powerUpEntityHolder.spawnPowerUp(mViewHeight, mViewWidth, player.hitPoints)
         powerUpEntityHolder.updatePowerUps(player, canvas)
     }
 
@@ -245,6 +286,33 @@ class GameView @JvmOverloads constructor(
             playerInvulnerability
         )
         numberOfMeteors = meteorEntityHolder.getAllEntities().size
+    }
+
+    override fun onStateChange() {
+        when (StateMediator.getState()) {
+            is Menu -> {
+            }
+            is GameStart -> {
+                startLightning.show()
+                meteorEntityHolder.prepareEntityDeletion(meteorEntityHolder.getAllEntities())
+                playerInvulnerability.activateInvulnerability(System.currentTimeMillis(), 3000L)
+                player.revive()
+                player.setSpawn(mViewWidth / 2f, mViewHeight + 250f)
+            }
+            is GameRunning -> {
+                bossSpawner.enable()
+                projectileSpawner.enable()
+            }
+            is GameEnd -> {
+                projectileEntityHolder.prepareEntityDeletion(projectileEntityHolder.getAllEntities())
+                projectileSpawner.disable()
+                bossSpawner.disable()
+                repeat(3) {
+                    boss.kill()
+                }
+                endGameBlend.show()
+            }
+        }
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -279,29 +347,7 @@ class GameView @JvmOverloads constructor(
         mGameThread.start()
     }
 
-    override fun update(o: Observable?, arg: Any?) {
-        if (o is GameState) {
-            if (!o.running) {
-                projectileEntityHolder.prepareEntityDeletion(projectileEntityHolder.getAllEntities())
-                playerParticleEntityHolder.updateVisibility(false)
-                projectileSpawner.disable()
-                bossSpawner.disable()
-                repeat(3){
-                    boss.kill()
-                }
-                endGameBlend.show()
-            } else {
-                playerInvulnerability.activateInvulnerability(System.currentTimeMillis(), 3000L)
-                player.revive()
-                startLightning.show()
-                bossSpawner.enable()
-                projectileSpawner.enable()
-                meteorEntityHolder.prepareEntityDeletion(meteorEntityHolder.getAllEntities())
-                player.setSpawn(mViewWidth / 2f, mViewHeight - 120f)
-                playerParticleEntityHolder.updateVisibility(true)
-            }
-        }
-    }
+
 }
 
 

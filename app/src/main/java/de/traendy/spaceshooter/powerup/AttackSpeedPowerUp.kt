@@ -5,7 +5,7 @@ import android.text.TextPaint
 import de.traendy.spaceshooter.engine.Entity
 
 
-class PowerUp(private val worldHeight: Float, override var xPos: Float) :
+class AttackSpeedPowerUp(private val worldHeight: Float, override var xPos: Float) :
     Entity {
 
 
