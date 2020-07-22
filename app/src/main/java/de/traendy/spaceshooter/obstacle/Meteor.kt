@@ -7,11 +7,11 @@ import de.traendy.spaceshooter.engine.getDecelerateInterpolation
 import de.traendy.spaceshooter.game.GameConfig
 import kotlin.random.Random
 
-class Meteor(private val worldHeight: Int, private val worldWidth: Int, override var xPos: Float) :
+class Meteor(private val worldHeight: Int, private val worldWidth: Int, override var xPos: Float, private val difficulty:Int) :
     Entity {
-    override var yPos: Float = -150f
-    private var radius = GameConfig.meteorBaseSize + 150 * (getCircleInterpolator(Random.nextFloat(),0.5f))//Random.nextInt(150)
-    private var mVelocity = GameConfig.meteorBaseVelocity + Random.nextInt(12)
+    override var yPos: Float = -250f
+    private var radius = GameConfig.meteorBaseSize + GameConfig.meteorSizeRange * (getCircleInterpolator(Random.nextFloat(),0.5f))//Random.nextInt(150)
+    var mVelocity = GameConfig.meteorBaseVelocity + Random.nextInt(12 + difficulty )
     private var destructionAngle = 0f
     private var shot = false
     var damage = radius.toInt()
@@ -86,7 +86,7 @@ class Meteor(private val worldHeight: Int, private val worldWidth: Int, override
     }
 
     private fun clone(): Meteor {
-        val meteor = Meteor(worldHeight, worldWidth, xPos)
+        val meteor = Meteor(worldHeight, worldWidth, xPos, difficulty)
         radius /= 1.5f
         meteor.radius = radius
         destructionAngle = 3 * getCircleInterpolator(Random.nextFloat(),1f)//Random.nextInt(1, 2)

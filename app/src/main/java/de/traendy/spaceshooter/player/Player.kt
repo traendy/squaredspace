@@ -3,6 +3,7 @@ package de.traendy.spaceshooter.player
 import android.graphics.*
 import de.traendy.spaceshooter.BuildConfig
 import de.traendy.spaceshooter.engine.Entity
+import de.traendy.spaceshooter.game.GameConfig
 import de.traendy.spaceshooter.game.GameRunning
 import de.traendy.spaceshooter.game.StateMediator
 
@@ -16,7 +17,7 @@ open class Player(
     override var yPos: Float = 0f
     private val mWith = 100f
     private val mHeight = 250f
-    open var hitPoints = 3
+    open var hitPoints = GameConfig.playerHitPoints
     private val mWidth2 = 250f
     private val mHeight2 = 70f
     protected open var living = false
@@ -90,7 +91,7 @@ open class Player(
     }
 
     fun revive() {
-        hitPoints = 3
+        hitPoints = GameConfig.playerHitPoints
         living = true
         yPos = -100f
     }

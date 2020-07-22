@@ -3,13 +3,14 @@ package de.traendy.spaceshooter.enviroment
 import android.graphics.Canvas
 import de.traendy.spaceshooter.engine.PrimitiveEntityHolder
 import de.traendy.spaceshooter.engine.Spawner
+import de.traendy.spaceshooter.game.GameConfig
 import kotlin.random.Random
 
 class StarEntityHolder(private val starSpawner: Spawner): PrimitiveEntityHolder<Star>() {
 
     fun spawnStars(worldHeight:Float, worldWidth:Float){
         if (starSpawner.spawn()) {
-            for (i in 0..Random.nextInt(3)) {
+            for (i in 0..Random.nextInt(GameConfig.starSpawnRange)) {
                 val star = Star(
                     worldHeight,
                     Random.nextInt(worldWidth.toInt()).toFloat()

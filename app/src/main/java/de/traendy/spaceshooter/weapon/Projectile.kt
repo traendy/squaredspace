@@ -6,12 +6,13 @@ import android.graphics.Paint
 import android.graphics.RectF
 import de.traendy.spaceshooter.engine.Entity
 import de.traendy.spaceshooter.engine.getAnticipateInterpolator
+import de.traendy.spaceshooter.game.GameConfig
 
 class Projectile(override var xPos: Float, override var yPos: Float, private val drift: Float) :
     Entity {
-    private val mWith = 5f
-    private val mHeight = 60f
-    private val mVelocity = -15
+    private val mWith = GameConfig.projectileWidth
+    private val mHeight = GameConfig.projectileHeight
+    private val mVelocity = GameConfig.projectileSpeed
     private var hit = false
     private var interpolatorPosition = 0.7f
 

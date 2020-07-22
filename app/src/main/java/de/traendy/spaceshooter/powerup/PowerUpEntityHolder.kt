@@ -1,7 +1,9 @@
 package de.traendy.spaceshooter.powerup
 
 import android.graphics.Canvas
+import de.traendy.spaceshooter.effects.PointsEntityHolder
 import de.traendy.spaceshooter.engine.*
+import de.traendy.spaceshooter.game.GameConfig
 import de.traendy.spaceshooter.game.OldGameState
 import de.traendy.spaceshooter.player.Player
 import kotlin.random.Random
@@ -15,62 +17,79 @@ class PowerUpEntityHolder(
     fun spawnPowerUp(spawnY: Int, spawnX: Int, hitPoints: Int) {
         if (spawner.spawn()) {
             val pointer = getDecelerateInterpolation(
-                Random.nextFloat(),1f)
-            if(pointer < 0.3 ) {
-                val powerUp = AttackSpeedPowerUp(
-                    spawnY.toFloat(),
-                    Random.nextInt(spawnX).toFloat()
-                )
-                prepareEntityAddition(powerUp)
-            }else if (pointer < 0.6) {
-                val powerUp = HealthPowerUp(
-                    spawnY.toFloat(),
-                    Random.nextInt(spawnX).toFloat()
-                )
-                prepareEntityAddition(powerUp)
-            }else{
-                val powerUp = PointsPowerUp(
-                    spawnY.toFloat(),
-                    Random.nextInt(spawnX).toFloat()
-                )
-                prepareEntityAddition(powerUp)
+                Random.nextFloat(), 1f
+            )
+            when {
+                pointer < GameConfig.powerUpHealthSpawnOffset -> {
+                    val powerUp = HealthPowerUp(
+                        spawnY.toFloat(),
+                        Random.nextInt(spawnX).toFloat()
+                    )
+                    prepareEntityAddition(powerUp)
+                }
+                pointer < GameConfig.powerUpAttackSpeedSpawnOffset -> {
+                    val powerUp = AttackSpeedPowerUp(
+                        spawnY.toFloat(),
+                        Random.nextInt(spawnX).toFloat()
+                    )
+                    prepareEntityAddition(powerUp)
+                }
+                else -> {
+                    val powerUp = PointsPowerUp(
+                        spawnY.toFloat(),
+                        Random.nextInt(spawnX).toFloat()
+                    )
+                    prepareEntityAddition(powerUp)
+                }
             }
-
-
         }
     }
 
-    fun updatePowerUps(player: Player?, canvas: Canvas) {
+    fun updatePowerUps(
+        player: Player?, canvas: Canvas,
+        pointsEntityHolder: PointsEntityHolder
+    ) {
         getAllEntities().forEach { powerUp ->
             if (!powerUp.isAlive()) {
                 prepareEntityDeletion(powerUp)
             } else {
                 powerUp.updatePosition(0f, 0f)
                 powerUp.draw(canvas)
-                detectPlayerCollision(player, powerUp)
+                detectPlayerCollision(player, powerUp, pointsEntityHolder)
             }
         }
     }
 
     private fun detectPlayerCollision(
         player: Player?,
-        powerUp: Entity
+        powerUp: Entity,
+        pointsEntityHolder: PointsEntityHolder
     ) {
         player?.let {
-            if (collisionDetector.collided(powerUp, player) && powerUp.isAlive() && player.isAlive()) {
+            if (collisionDetector.collided(
+                    powerUp,
+                    player
+                ) && powerUp.isAlive() && player.isAlive()
+            ) {
                 powerUp.kill()
-                if(powerUp is AttackSpeedPowerUp){
-                    oldGameState.projectileSpawningInterval -= 8
-                }else if (powerUp is HealthPowerUp){
-                    if(player.hitPoints <3){
-                        player.hitPoints++
-                    } else {
-                        oldGameState.addPoint(50)
+                var points = 0
+                when (powerUp) {
+                    is AttackSpeedPowerUp -> {
+                        oldGameState.projectileSpawningInterval -= GameConfig.attackSpeedPowerUpAmplification
+                        points = GameConfig.attackSpeedPowerUpPoints
                     }
-                }else if( powerUp is PointsPowerUp){
-                    oldGameState.addPoint(100)
+                    is HealthPowerUp -> {
+                        if (player.hitPoints < GameConfig.playerHitPoints) {
+                            player.hitPoints++
+                        }
+                        points = GameConfig.healthPowerUpPoints
+                    }
+                    is PointsPowerUp -> {
+                        points = GameConfig.pointsPowerUpPoints
+                    }
                 }
-
+                oldGameState.addPoint(points)
+                pointsEntityHolder.spawnPoints(powerUp.xPos, powerUp.yPos, points)
             }
         }
     }

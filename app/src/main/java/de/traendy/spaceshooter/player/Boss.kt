@@ -6,15 +6,15 @@ import android.graphics.RectF
 import de.traendy.spaceshooter.BuildConfig
 import de.traendy.spaceshooter.engine.Entity
 import de.traendy.spaceshooter.engine.getCircleInterpolator
+import de.traendy.spaceshooter.game.GameConfig
 
 class Boss(private val mPaint: Paint, private val rectF: RectF) : Entity {
 
     private var relativePosition = 0F
     override var xPos: Float = 0f
     override var yPos: Float = 0f
-    private val mWith = 150f
-    private val mHeight = 150f
-    private var hitPoints = 3
+    private val mSize = GameConfig.bossSize
+    var hitPoints = GameConfig.bossHitPoints
     private var living = false
     private var interpolatorPosition = 0.0f
 
@@ -30,8 +30,8 @@ class Boss(private val mPaint: Paint, private val rectF: RectF) : Entity {
             }
         }
 
-        rectF.set(xPos, yPos, xPos + mWith, yPos + mHeight)
-        rectF.offset(-mWith / 2, -mHeight / 2)
+        rectF.set(xPos, yPos, xPos + mSize, yPos + mSize)
+        rectF.offset(-mSize / 2, -mSize / 2)
     }
 
     private fun updateRelativePosition(playerPosition: Float): Float {
@@ -43,7 +43,7 @@ class Boss(private val mPaint: Paint, private val rectF: RectF) : Entity {
 
     fun getMineSpawnPosition(): Pair<Int, Int> {
         return Pair(
-            (rectF.left + mWith / 2).toInt(),
+            (rectF.left + mSize / 2).toInt(),
             rectF.bottom.toInt()
         )
     }
@@ -75,7 +75,7 @@ class Boss(private val mPaint: Paint, private val rectF: RectF) : Entity {
 
 
     fun revive() {
-        hitPoints = 3
+        hitPoints = GameConfig.bossHitPoints
         living = true
         yPos = -100f
     }

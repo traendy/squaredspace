@@ -4,16 +4,15 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
-import android.os.Build
 import android.util.AttributeSet
 import android.util.Log
 import android.view.MotionEvent
 import android.view.SurfaceHolder
 import android.view.SurfaceView
 import androidx.core.content.ContextCompat
-import androidx.core.graphics.drawable.DrawableCompat
 import de.traendy.spaceshooter.R
 import de.traendy.spaceshooter.effects.Lightning
+import de.traendy.spaceshooter.effects.PointsEntityHolder
 import de.traendy.spaceshooter.effects.getBlack
 import de.traendy.spaceshooter.effects.getWhite50
 import de.traendy.spaceshooter.engine.FrameRate
@@ -39,16 +38,15 @@ class GameView @JvmOverloads constructor(
     private lateinit var mGameThread: Thread
     private var mRunning: Boolean = false
 
-    private val player = PlayerFactory.create(getBitmapFromVectorDrawable(context, R.drawable.spaceship))
+    private val player =
+        PlayerFactory.create(getBitmapFromVectorDrawable(context, R.drawable.spaceship))
+
     private fun getBitmapFromVectorDrawable(
         context: Context?,
         drawableId: Int
     ): Bitmap? {
-        var drawable =
+        val drawable =
             ContextCompat.getDrawable(context!!, drawableId)
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            drawable = DrawableCompat.wrap(drawable!!).mutate()
-        }
         val bitmap = Bitmap.createBitmap(
             drawable!!.intrinsicWidth,
             drawable.intrinsicHeight, Bitmap.Config.ARGB_8888
@@ -59,10 +57,10 @@ class GameView @JvmOverloads constructor(
         return bitmap
     }
 
-    private val frameRate = FrameRate(16L)
+    private val frameRate = FrameRate(GameConfig.frameRate)
     val gameState =
         OldGameState(System.currentTimeMillis())
-    private val meteorSpawner = Spawner(gameState.meteorSpawningInterval)
+    private val meteorSpawner = Spawner(GameConfig.meteorSpawnInterval)
     private val meteorEntityHolder =
         MeteorEntityHolder(
             PrimitiveCollisionDetector(),
@@ -74,52 +72,45 @@ class GameView @JvmOverloads constructor(
         ProjectileEntityHolder(
             projectileSpawner
         )
-    private val powerUpSpawner = Spawner(gameState.powerUpSpawningInterval)
+    private val powerUpSpawner = Spawner(GameConfig.powerUpSpawnInterval)
     private val powerUpEntityHolder =
         PowerUpEntityHolder(
             PrimitiveCollisionDetector(),
             powerUpSpawner,
             gameState
         )
-    private val starSpawner = Spawner(gameState.starSpawningInterval)
+    private val starSpawner = Spawner(GameConfig.starSpawnInterval)
     private val starEntityHolder =
         StarEntityHolder(starSpawner)
 
 
     private val bossParticleEntityHolder = ParticleEntityHolderFactory.createBossParticleHolder()
-    private val bossSpawner = Spawner(gameState.bossSpawningInterval)
+    private val bossSpawner = Spawner(GameConfig.bossSpawnInterval)
     private val boss = PlayerFactory.createBoss().apply { kill() }
     private val bossProjectileCollisionDetector = BossProjectileCollisionDetector()
-    private val mineEntityHolder = MineEntityHolder(Spawner(gameState.mineSpawningInterval))
-    private var numberOfMeteors = 0
+    private val mineEntityHolder = MineEntityHolder(Spawner(GameConfig.mineSpawnInterval))
+    private val pointsEntityHolder = PointsEntityHolder()
     private val metaHud = MetaHud()
-    private val startLightning = Lightning(state = object :Lightning.State{
-        override fun start() {
-
+    private val startLightning = Lightning(state = object : Lightning.State {
+        override fun start() { /* unused */
         }
 
-        override fun half() {
-            Log.d("LIGHTNIGSTATE", "Called")
+        override fun half() { /* unused */
         }
 
         override fun done() {
-//            state = state.handle(Unit)
             StateMediator.progressState()
         }
-
     })
-    private val damageLightning = Lightning(0.1f, getWhite50())
-    private val endGameBlend = Lightning(0.01f, getBlack(), state = object : Lightning.State {
-        override fun start() {
-
+    private val damageLightning = Lightning(GameConfig.damageLightningEffectSpeed, getWhite50())
+    private val endGameBlend = Lightning(color = getBlack(), state = object : Lightning.State {
+        override fun start() { /* unused */
         }
 
-        override fun half() {
-            Log.d("LIGHTNIGSTATE", "Called")
+        override fun half() { /* unused */
         }
 
         override fun done() {
-//             state = state . handle (Unit)
             StateMediator.progressState()
         }
 
@@ -128,7 +119,6 @@ class GameView @JvmOverloads constructor(
     private val playerInvulnerability = Invulnerability()
 
     init {
-//        gameState.addObserver(this)
         StateMediator.register(this)
     }
 
@@ -151,7 +141,7 @@ class GameView @JvmOverloads constructor(
                 )
                 drawStars(canvas)
                 drawMeteors(canvas)
-                when(StateMediator.getState()){
+                when (StateMediator.getState()) {
                     is Menu -> {
 
                     }
@@ -165,6 +155,7 @@ class GameView @JvmOverloads constructor(
 
                         if (gameState.running && isPlayerAlive(player, gameState)) {
                             drawProjectiles(canvas)
+                            pointsEntityHolder.draw(canvas)
                             player.draw(canvas)
                             drawBoss(canvas)
                             drawBossParticles(canvas)
@@ -192,6 +183,11 @@ class GameView @JvmOverloads constructor(
                 bossParticleEntityHolder.executePreparedAddition()
                 mineEntityHolder.executePreparedAddition()
                 mineEntityHolder.executePreparedDeletion()
+
+                pointsEntityHolder.clean()
+                pointsEntityHolder.executePreparedDeletion()
+                pointsEntityHolder.executePreparedAddition()
+
                 updateSpawner(gameState)
             }
         }
@@ -203,7 +199,7 @@ class GameView @JvmOverloads constructor(
     }
 
     private fun isPlayerAlive(player: Player, oldGameState: OldGameState): Boolean {
-        return if(player.isAlive()) true
+        return if (player.isAlive()) true
         else {
             oldGameState.lose(System.currentTimeMillis())
             false
@@ -215,13 +211,17 @@ class GameView @JvmOverloads constructor(
             boss.revive()
             bossParticleEntityHolder.reset()
         }
-        if(bossProjectileCollisionDetector.collided(boss, projectileEntityHolder.getAllEntities())){
-            gameState.addPoint(200)
-            bossParticleEntityHolder.removeParticles(20)
+        if (bossProjectileCollisionDetector.collided(
+                boss,
+                projectileEntityHolder.getAllEntities()
+            )
+        ) {
+            gameState.addPoint(GameConfig.bossPoints)
+            pointsEntityHolder.spawnPoints(boss.xPos, boss.yPos, GameConfig.bossPoints)
+            bossParticleEntityHolder.removeParticles(GameConfig.bossLoseParticles)
         }
         if (!boss.isAlive()) {
             bossParticleEntityHolder.updateVisibility(false)
-//            mineEntityHolder.prepareEntityDeletion(mineEntityHolder.getAllEntities())
             bossSpawner.enable()
         } else {
             bossSpawner.disable()
@@ -245,10 +245,12 @@ class GameView @JvmOverloads constructor(
 
     private fun updateSpawner(oldGameState: OldGameState) {
         projectileSpawner.updateInterval(oldGameState.projectileSpawningInterval)
-        meteorSpawner.updateInterval(oldGameState.meteorSpawningInterval)
-        starSpawner.updateInterval(oldGameState.starSpawningInterval)
-        powerUpSpawner.updateInterval(oldGameState.powerUpSpawningInterval)
-        bossSpawner.updateInterval(oldGameState.bossSpawningInterval)
+        val spawnUpdate =
+            GameConfig.meteorSpawnInterval - oldGameState.highScore() / GameConfig.meteorSpawnAmplification
+        meteorSpawner.updateInterval(spawnUpdate)
+        starSpawner.updateInterval(GameConfig.starSpawnInterval)
+        powerUpSpawner.updateInterval(GameConfig.powerUpSpawnInterval)
+        bossSpawner.updateInterval(GameConfig.bossSpawnInterval)
     }
 
     private fun drawBossParticles(canvas: Canvas) {
@@ -258,7 +260,7 @@ class GameView @JvmOverloads constructor(
 
     private fun drawPowerUps(canvas: Canvas) {
         powerUpEntityHolder.spawnPowerUp(mViewHeight, mViewWidth, player.hitPoints)
-        powerUpEntityHolder.updatePowerUps(player, canvas)
+        powerUpEntityHolder.updatePowerUps(player, canvas, pointsEntityHolder)
     }
 
     private fun drawStars(canvas: Canvas) {
@@ -283,9 +285,9 @@ class GameView @JvmOverloads constructor(
             player,
             canvas,
             damageLightning,
-            playerInvulnerability
+            playerInvulnerability,
+            pointsEntityHolder
         )
-        numberOfMeteors = meteorEntityHolder.getAllEntities().size
     }
 
     override fun onStateChange() {
@@ -295,7 +297,10 @@ class GameView @JvmOverloads constructor(
             is GameStart -> {
                 startLightning.show()
                 meteorEntityHolder.prepareEntityDeletion(meteorEntityHolder.getAllEntities())
-                playerInvulnerability.activateInvulnerability(System.currentTimeMillis(), 3000L)
+                playerInvulnerability.activateInvulnerability(
+                    System.currentTimeMillis(),
+                    GameConfig.invulnerabilityDuration
+                )
                 player.revive()
                 player.setSpawn(mViewWidth / 2f, mViewHeight + 250f)
             }
@@ -307,9 +312,12 @@ class GameView @JvmOverloads constructor(
                 projectileEntityHolder.prepareEntityDeletion(projectileEntityHolder.getAllEntities())
                 projectileSpawner.disable()
                 bossSpawner.disable()
-                repeat(3) {
+                repeat(boss.hitPoints) {
                     boss.kill()
                 }
+                mineEntityHolder.prepareEntityDeletion(mineEntityHolder.getAllEntities())
+                powerUpEntityHolder.prepareEntityDeletion(powerUpEntityHolder.getAllEntities())
+                pointsEntityHolder.prepareEntityDeletion(pointsEntityHolder.getAllEntities())
                 endGameBlend.show()
             }
         }

@@ -5,12 +5,13 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.RectF
 import de.traendy.spaceshooter.engine.Entity
+import de.traendy.spaceshooter.game.GameConfig
 
 import kotlin.random.Random
 
 class Star(private val worldHeight: Float, override val xPos: Float) :
     Entity {
-    private var radius = 1f + Random.nextInt(20)
+    private var radius = 1f + Random.nextInt(GameConfig.starSizeRange)
     override var yPos: Float = 0f
     private var fillRectF = RectF()
     private val starColors = arrayOf(

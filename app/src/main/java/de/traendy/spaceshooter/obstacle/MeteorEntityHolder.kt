@@ -1,15 +1,20 @@
 package de.traendy.spaceshooter.obstacle
 
 import android.graphics.Canvas
+import android.util.Log
 import de.traendy.spaceshooter.effects.Lightning
+import de.traendy.spaceshooter.effects.PointsEntityHolder
 import de.traendy.spaceshooter.engine.CollisionDetector
 import de.traendy.spaceshooter.engine.Entity
 import de.traendy.spaceshooter.engine.PrimitiveEntityHolder
 import de.traendy.spaceshooter.engine.Spawner
+import de.traendy.spaceshooter.game.GameConfig
 import de.traendy.spaceshooter.game.OldGameState
 import de.traendy.spaceshooter.player.Invulnerability
 import de.traendy.spaceshooter.player.Player
+import kotlin.math.abs
 import kotlin.random.Random
+import kotlin.random.nextInt
 
 
 class MeteorEntityHolder(
@@ -23,7 +28,8 @@ class MeteorEntityHolder(
             val meteor = Meteor(
                 worldHeight,
                 worldWidth,
-                Random.nextInt(worldWidth).toFloat()
+                Random.nextInt(worldWidth).toFloat(),
+                (oldGameState.highScore() / 5000).toInt()
             )
             prepareEntityAddition(meteor)
         }
@@ -34,10 +40,11 @@ class MeteorEntityHolder(
         player: Player?,
         canvas: Canvas,
         damageEffect: Lightning,
-        playerInvulnerability: Invulnerability
+        playerInvulnerability: Invulnerability,
+        pointsEntityHolder: PointsEntityHolder
     ) {
         getAllEntities().forEach { meteor ->
-            detectDestruction(dangerousEntities, meteor)
+            detectDestruction(dangerousEntities, meteor, pointsEntityHolder)
             if (!meteor.isAlive()) {
                 prepareEntityDeletion(meteor)
             } else {
@@ -63,10 +70,10 @@ class MeteorEntityHolder(
                 )
             ) {
                 meteor.kill()
-                if (meteor.damage > 30f) {
+                if (meteor.damage > GameConfig.meteorDamageOffset) {
                     player.kill()
                     damageEffect.show()
-                    playerInvulnerability.activateInvulnerability(System.currentTimeMillis(), 3000L)
+                    playerInvulnerability.activateInvulnerability(System.currentTimeMillis(), GameConfig.invulnerabilityDuration)
                 }
             }
         }
@@ -74,13 +81,15 @@ class MeteorEntityHolder(
 
     private fun detectDestruction(
         dangerousEntities: List<Entity>,
-        meteor: Meteor
+        meteor: Meteor,
+        pointsEntityHolder: PointsEntityHolder
     ) {
         dangerousEntities.forEach { danger ->
             if (collisionDetector.collided(danger, meteor)) {
                 meteor.isShot()?.let { it -> prepareEntityAddition(it) }
                 danger.kill()
-                oldGameState.addPoint()
+                oldGameState.addPoint(GameConfig.meteorPoints)
+                pointsEntityHolder.spawnPoints(meteor.xPos, meteor.yPos, GameConfig.meteorPoints)
             }
         }
     }

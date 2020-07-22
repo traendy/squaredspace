@@ -5,6 +5,7 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.RectF
 import de.traendy.spaceshooter.engine.Entity
+import de.traendy.spaceshooter.game.GameConfig
 
 class Mine(
     private val worldHeight: Int,
@@ -12,9 +13,9 @@ class Mine(
 ) : Entity {
 
     private val collisionBox: RectF = RectF()
-    private val mVelocity = 10
+    private val mVelocity = GameConfig.mineVelocity
 
-    private val mRadius = 60f
+    private val mRadius = GameConfig.mineSize
     private var hit = false
 
     private val circleSolidPaint = Paint().apply {

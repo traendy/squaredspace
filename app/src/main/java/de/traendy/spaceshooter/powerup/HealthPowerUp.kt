@@ -6,15 +6,16 @@ import android.graphics.Paint
 import android.graphics.RectF
 import android.text.TextPaint
 import de.traendy.spaceshooter.engine.Entity
+import de.traendy.spaceshooter.game.GameConfig
 
 class HealthPowerUp(private val worldHeight: Float, override var xPos: Float) :
-    Entity {
+    Entity, PowerUp {
 
 
     private val circleSolidRect = RectF()
     private val circleShadowRect = RectF()
-    private val mVelocity = 10f
-    private val mSize = 60f
+    override var mVelocity = GameConfig.powerUpSpeed
+    private val mSize = GameConfig.powerUpSize
     override var yPos = -mSize
     private var consumed = false
 

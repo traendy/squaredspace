@@ -5,24 +5,17 @@ import java.util.*
 
 class OldGameState(var startTime:Long): Observable() {
 
-    val mineSpawningInterval= 750L
-    val bossSpawningInterval = 60*1000*16/8L/8
     var running:Boolean = false
     private var points = 0
     private var gameTime = 0L
-    var meteorSpawningInterval = 512L
     var projectileSpawningInterval = GameConfig.attackSpeed
     set(value) {
-        if(field > 256){
+        if(field > GameConfig.maxAttackSpeed){
             field = value
         }else if(value == GameConfig.attackSpeed){
             field = value
         }
     }
-    var starSpawningInterval = 208L
-    var powerUpSpawningInterval = 5008L
-
-
 
 
     fun timeSurvived():Long = gameTime
