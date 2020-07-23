@@ -1,6 +1,7 @@
 package de.traendy.spaceshooter
 
 import android.content.Context
+import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.view.View
@@ -29,10 +30,23 @@ class MainActivity : AppCompatActivity(), StateMediator.Listener {
         view.startButton.setOnClickListener {
             resetGameState()
         }
-//        view.gameView.gameState.addObserver(this)
+
+        view.shareButton.setOnClickListener{
+            share()
+        }
+
         getOldHighScore(view)
         view.version.text = BuildConfig.VERSION_NAME
         showMenu()
+    }
+
+    private fun share() {
+        val sharingIntent = Intent(Intent.ACTION_SEND)
+        sharingIntent.type = "text/plain"
+        val shareBody = "Check out my Highscore playing Squared Space: ${binding.highScoreValue.text} Points! :-)"
+        sharingIntent.putExtra(Intent.EXTRA_SUBJECT, "Squared Space")
+        sharingIntent.putExtra(Intent.EXTRA_TEXT, shareBody)
+        startActivity(Intent.createChooser(sharingIntent, "Share via"))
     }
 
     private fun getOldHighScore(view: ConstraintLayout) {
@@ -51,6 +65,7 @@ class MainActivity : AppCompatActivity(), StateMediator.Listener {
         binding.root.version.visibility = View.VISIBLE
         binding.root.specialThanks.visibility = View.VISIBLE
         binding.root.startButton.visibility = View.VISIBLE
+//        binding.root.shareButton.visibility = View.VISIBLE
     }
 
     private fun resetGameState() {
@@ -83,6 +98,7 @@ class MainActivity : AppCompatActivity(), StateMediator.Listener {
         binding.root.highScoreValue.visibility = View.GONE
         binding.root.headline.visibility = View.GONE
         binding.root.version.visibility = View.GONE
+        binding.root.shareButton.visibility = View.GONE
         binding.root.specialThanks.visibility = View.GONE
     }
 

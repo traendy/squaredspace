@@ -35,7 +35,7 @@ object GameConfig {
     const val attackSpeedPowerUpPoints = 10
     const val healthPowerUpPoints = 50
     const val pointsPowerUpPoints = 100
-    const val attackSpeedPowerUpAmplification = 8
+    const val attackSpeedPowerUpAmplification = 12
     const val powerUpHealthSpawnOffset = 0.3f
     const val powerUpAttackSpeedSpawnOffset = 0.6f
     const val projectileHeight = 50f

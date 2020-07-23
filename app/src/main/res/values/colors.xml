@@ -5,4 +5,5 @@
     <color name="colorAccent">#03DAC5</color>
     <color name="surfaceBackground">#0B001F</color>
     <color name="whiteText">#FFFFFF</color>
+    <color name="transparent_imagebutton">#00FFFFFF</color>
 </resources>

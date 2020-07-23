@@ -76,7 +76,7 @@ class HealthPowerUp(private val worldHeight: Float, override var xPos: Float) :
         return listOf(circleSolidRect)
     }
 
-    override fun isAlive(): Boolean = yPos <= worldHeight && !consumed
+    override fun isAlive(): Boolean = yPos <= worldHeight + mSize && !consumed
 
 
     override fun kill() {

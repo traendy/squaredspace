@@ -74,7 +74,7 @@ class AttackSpeedPowerUp(private val worldHeight: Float, override var xPos: Floa
         return listOf(circleSolidRect)
     }
 
-    override fun isAlive(): Boolean = yPos <= worldHeight && !consumed
+    override fun isAlive(): Boolean = yPos <= worldHeight + mSize && !consumed
 
 
     override fun kill() {

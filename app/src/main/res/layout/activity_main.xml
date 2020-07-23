@@ -63,6 +63,18 @@
         app:layout_constraintStart_toStartOf="parent"
         />
 
+    <androidx.appcompat.widget.AppCompatImageButton
+        android:id="@+id/shareButton"
+        android:background="@color/transparent_imagebutton"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:visibility="gone"
+        android:layout_marginStart="8dp"
+        android:src="@drawable/ic_baseline_share_24"
+        app:layout_constraintBottom_toTopOf="@id/gameOverText"
+        app:layout_constraintStart_toEndOf="@id/highScoreValue"
+        app:layout_constraintTop_toTopOf="@+id/highScoreValue" />
+
     <TextView
         android:id="@+id/gameOverText"
         android:layout_width="wrap_content"
