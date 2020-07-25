@@ -6,6 +6,7 @@ import de.traendy.spaceshooter.engine.*
 import de.traendy.spaceshooter.game.GameConfig
 import de.traendy.spaceshooter.game.OldGameState
 import de.traendy.spaceshooter.player.Player
+import de.traendy.spaceshooter.weapon.Overcharge
 import kotlin.random.Random
 
 class PowerUpEntityHolder(
@@ -47,7 +48,8 @@ class PowerUpEntityHolder(
 
     fun updatePowerUps(
         player: Player?, canvas: Canvas,
-        pointsEntityHolder: PointsEntityHolder
+        pointsEntityHolder: PointsEntityHolder,
+        overcharge: Overcharge
     ) {
         getAllEntities().forEach { powerUp ->
             if (!powerUp.isAlive()) {
@@ -55,7 +57,7 @@ class PowerUpEntityHolder(
             } else {
                 powerUp.updatePosition(0f, 0f)
                 powerUp.draw(canvas)
-                detectPlayerCollision(player, powerUp, pointsEntityHolder)
+                detectPlayerCollision(player, powerUp, pointsEntityHolder, overcharge)
             }
         }
     }
@@ -63,7 +65,9 @@ class PowerUpEntityHolder(
     private fun detectPlayerCollision(
         player: Player?,
         powerUp: Entity,
-        pointsEntityHolder: PointsEntityHolder
+        pointsEntityHolder: PointsEntityHolder,
+        overcharge: Overcharge
+
     ) {
         player?.let {
             if (collisionDetector.collided(
@@ -75,8 +79,10 @@ class PowerUpEntityHolder(
                 var points = 0
                 when (powerUp) {
                     is AttackSpeedPowerUp -> {
-                        oldGameState.projectileSpawningInterval -= GameConfig.attackSpeedPowerUpAmplification
+
                         points = GameConfig.attackSpeedPowerUpPoints
+                        overcharge.reset(oldGameState.projectileSpawningInterval,
+                            (oldGameState.projectileSpawningInterval - GameConfig.attackSpeedPowerUpAmplification))
                     }
                     is HealthPowerUp -> {
                         if (player.hitPoints < GameConfig.playerHitPoints) {

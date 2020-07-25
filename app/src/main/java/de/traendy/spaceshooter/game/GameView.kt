@@ -11,10 +11,7 @@ import android.view.SurfaceHolder
 import android.view.SurfaceView
 import androidx.core.content.ContextCompat
 import de.traendy.spaceshooter.R
-import de.traendy.spaceshooter.effects.Lightning
-import de.traendy.spaceshooter.effects.PointsEntityHolder
-import de.traendy.spaceshooter.effects.getBlack
-import de.traendy.spaceshooter.effects.getWhite50
+import de.traendy.spaceshooter.effects.*
 import de.traendy.spaceshooter.engine.FrameRate
 import de.traendy.spaceshooter.engine.PrimitiveCollisionDetector
 import de.traendy.spaceshooter.engine.Spawner
@@ -23,6 +20,7 @@ import de.traendy.spaceshooter.hud.MetaHud
 import de.traendy.spaceshooter.obstacle.MeteorEntityHolder
 import de.traendy.spaceshooter.player.*
 import de.traendy.spaceshooter.powerup.PowerUpEntityHolder
+import de.traendy.spaceshooter.weapon.Overcharge
 import de.traendy.spaceshooter.weapon.ProjectileEntityHolder
 
 
@@ -67,6 +65,7 @@ class GameView @JvmOverloads constructor(
             meteorSpawner,
             gameState
         )
+    private val overCharge = Overcharge(gameState)
     private val projectileSpawner = Spawner(gameState.projectileSpawningInterval)
     private val projectileEntityHolder =
         ProjectileEntityHolder(
@@ -149,12 +148,15 @@ class GameView @JvmOverloads constructor(
                         startLightning.draw(canvas)
                         player.draw(canvas)
                         player.updatePositionBeforeGameStart(mViewWidth / 2f)
+
                     }
                     is GameRunning -> {
                         drawPowerUps(canvas)
 
                         if (gameState.running && isPlayerAlive(player, gameState)) {
+                            overCharge.overcharge()
                             drawProjectiles(canvas)
+
                             pointsEntityHolder.draw(canvas)
                             player.draw(canvas)
                             drawBoss(canvas)
@@ -187,7 +189,6 @@ class GameView @JvmOverloads constructor(
                 pointsEntityHolder.clean()
                 pointsEntityHolder.executePreparedDeletion()
                 pointsEntityHolder.executePreparedAddition()
-
                 updateSpawner(gameState)
             }
         }
@@ -260,7 +261,7 @@ class GameView @JvmOverloads constructor(
 
     private fun drawPowerUps(canvas: Canvas) {
         powerUpEntityHolder.spawnPowerUp(mViewHeight, mViewWidth, player.hitPoints)
-        powerUpEntityHolder.updatePowerUps(player, canvas, pointsEntityHolder)
+        powerUpEntityHolder.updatePowerUps(player, canvas, pointsEntityHolder, overCharge)
     }
 
     private fun drawStars(canvas: Canvas) {

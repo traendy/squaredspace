@@ -9,13 +9,6 @@ class OldGameState(var startTime:Long): Observable() {
     private var points = 0
     private var gameTime = 0L
     var projectileSpawningInterval = GameConfig.attackSpeed
-    set(value) {
-        if(field > GameConfig.maxAttackSpeed){
-            field = value
-        }else if(value == GameConfig.attackSpeed){
-            field = value
-        }
-    }
 
 
     fun timeSurvived():Long = gameTime

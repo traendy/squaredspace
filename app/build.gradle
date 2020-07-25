@@ -18,8 +18,8 @@ android {
         applicationId "de.traendy.spaceshooter"
         minSdkVersion 21
         targetSdkVersion 30
-        versionCode 5
-        versionName "0.5"
+        versionCode 6
+        versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }

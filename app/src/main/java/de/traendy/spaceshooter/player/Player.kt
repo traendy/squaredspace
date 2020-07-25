@@ -16,7 +16,7 @@ open class Player(
     override var xPos: Float = 0f
     override var yPos: Float = 0f
     private val mWith = 100f
-    private val mHeight = 250f
+    val mHeight = 250f
     open var hitPoints = GameConfig.playerHitPoints
     private val mWidth2 = 250f
     private val mHeight2 = 70f

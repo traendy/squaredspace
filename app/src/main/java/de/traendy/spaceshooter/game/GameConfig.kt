@@ -21,7 +21,7 @@ object GameConfig {
     const val meteorSpawnInterval = 512L
     const val starSpawnInterval = 208L
     const val powerUpSpawnInterval = 5008L
-    const val maxAttackSpeed = 256
+    const val maxAttackSpeed = 50
     const val meteorSizeRange = 150
     const val meteorPoints = 10
     const val meteorDamageOffset = 30f
@@ -42,5 +42,5 @@ object GameConfig {
     const val projectileWidth = 5f
     const val projectileSpeed = -15
     const val meteorSpawnAmplification = 100L
-
+    const val exhaustSpawningInterval: Long = 20L
 }
