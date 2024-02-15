@@ -6,11 +6,9 @@ import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
-import androidx.constraintlayout.widget.ConstraintLayout
 import de.traendy.spaceshooter.databinding.ActivityMainBinding
 import de.traendy.spaceshooter.game.Menu
 import de.traendy.spaceshooter.game.StateMediator
-import kotlinx.android.synthetic.main.activity_main.view.*
 
 
 class MainActivity : AppCompatActivity(), StateMediator.Listener {
@@ -23,20 +21,19 @@ class MainActivity : AppCompatActivity(), StateMediator.Listener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
-        val view = binding.root
-        setContentView(view)
+        setContentView(binding.root)
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         StateMediator.register(this)
-        view.startButton.setOnClickListener {
+        binding.startButton.setOnClickListener {
             resetGameState()
         }
 
-        view.shareButton.setOnClickListener{
+        binding.shareButton.setOnClickListener{
             share()
         }
 
-        getOldHighScore(view)
-        view.version.text = BuildConfig.VERSION_NAME
+        getOldHighScore()
+        binding.version.text = BuildConfig.VERSION_NAME
         showMenu()
     }
 
@@ -49,57 +46,57 @@ class MainActivity : AppCompatActivity(), StateMediator.Listener {
         startActivity(Intent.createChooser(sharingIntent, "Share via"))
     }
 
-    private fun getOldHighScore(view: ConstraintLayout) {
+    private fun getOldHighScore() {
         val sharedPref = getSharedPreferences(
             getString(R.string.preference_highscore_key), Context.MODE_PRIVATE
         )
         currentHighScore = sharedPref.getLong("LastHighScore", 0L)
-        view.highScoreLabel.text = getString(R.string.current_highscore)
-        view.highScoreValue.text = currentHighScore.toString()
+        binding.highScoreLabel.text = getString(R.string.current_highscore)
+        binding.highScoreValue.text = currentHighScore.toString()
     }
 
     private fun showMenu() {
-        binding.root.highScoreLabel.visibility = View.VISIBLE
-        binding.root.highScoreValue.visibility = View.VISIBLE
-        binding.root.headline.visibility = View.VISIBLE
-        binding.root.version.visibility = View.VISIBLE
-        binding.root.specialThanks.visibility = View.VISIBLE
-        binding.root.startButton.visibility = View.VISIBLE
-//        binding.root.shareButton.visibility = View.VISIBLE
+        binding.highScoreLabel.visibility = View.VISIBLE
+        binding.highScoreValue.visibility = View.VISIBLE
+        binding.headline.visibility = View.VISIBLE
+        binding.version.visibility = View.VISIBLE
+        binding.specialThanks.visibility = View.VISIBLE
+        binding.startButton.visibility = View.VISIBLE
+//        binding.shareButton.visibility = View.VISIBLE
     }
 
     private fun resetGameState() {
-//        binding.root.gameView.gameState.addObserver(this)
-        binding.root.gameView.gameState.reset()
+//        binding.gameView.gameState.addObserver(this)
+        binding.gameView.gameState.reset()
         StateMediator.progressState()
     }
 
     override fun onStart() {
         super.onStart()
-        binding.root.gameView.resume()
+        binding.gameView.resume()
     }
 
     override fun onPause() {
         super.onPause()
-        binding.root.gameView.pause()
+        binding.gameView.pause()
     }
 
     private fun updateHighScore(highScore: Long) {
-        binding.root.gameOverText.visibility = View.VISIBLE
-        binding.root.gameOverText.text =
+        binding.gameOverText.visibility = View.VISIBLE
+        binding.gameOverText.text =
             getString(R.string.your_score, highScore)
         saveHighScore(highScore)
     }
 
     private fun hideMenu() {
-        binding.root.gameOverText.visibility = View.GONE
-        binding.root.startButton.visibility = View.GONE
-        binding.root.highScoreLabel.visibility = View.GONE
-        binding.root.highScoreValue.visibility = View.GONE
-        binding.root.headline.visibility = View.GONE
-        binding.root.version.visibility = View.GONE
-        binding.root.shareButton.visibility = View.GONE
-        binding.root.specialThanks.visibility = View.GONE
+        binding.gameOverText.visibility = View.GONE
+        binding.startButton.visibility = View.GONE
+        binding.highScoreLabel.visibility = View.GONE
+        binding.highScoreValue.visibility = View.GONE
+        binding.headline.visibility = View.GONE
+        binding.version.visibility = View.GONE
+        binding.shareButton.visibility = View.GONE
+        binding.specialThanks.visibility = View.GONE
     }
 
     private fun saveHighScore(highScore: Long) {
@@ -110,10 +107,10 @@ class MainActivity : AppCompatActivity(), StateMediator.Listener {
         if (highScore > score) {
             sharedPref.edit().putLong("LastHighScore", highScore).apply()
             currentHighScore = highScore
-            binding.root.highScoreLabel.text = getString(R.string.new_high_score)
-            binding.root.highScoreValue.text = currentHighScore.toString()
+            binding.highScoreLabel.text = getString(R.string.new_high_score)
+            binding.highScoreValue.text = currentHighScore.toString()
         } else {
-            binding.root.highScoreLabel.text = getString(R.string.current_highscore)
+            binding.highScoreLabel.text = getString(R.string.current_highscore)
         }
 
     }
@@ -123,7 +120,7 @@ class MainActivity : AppCompatActivity(), StateMediator.Listener {
             when(StateMediator.getState()){
                 is Menu -> {
                     showMenu()
-                    updateHighScore(binding.root.gameView.gameState.highScore())
+                    updateHighScore(binding.gameView.gameState.highScore())
                 }
                 else -> hideMenu()
             }

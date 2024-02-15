@@ -2,6 +2,7 @@ package de.traendy.spaceshooter.player
 
 import android.graphics.*
 import de.traendy.spaceshooter.BuildConfig
+
 import de.traendy.spaceshooter.engine.Entity
 import de.traendy.spaceshooter.game.GameConfig
 import de.traendy.spaceshooter.game.GameRunning

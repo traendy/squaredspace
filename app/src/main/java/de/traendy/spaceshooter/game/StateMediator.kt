@@ -3,14 +3,14 @@ package de.traendy.spaceshooter.game
 object StateMediator {
     private var state: GameState<Unit> = Menu
     private val listeners = mutableListOf<Listener>()
-    public fun getState(): GameState<Unit> = state
+    fun getState(): GameState<Unit> = state
 
-    public fun progressState() {
+    fun progressState() {
         state = state.handle(Unit)
         listeners.forEach { it.onStateChange() }
     }
 
-    public fun register(listener: Listener) {
+    fun register(listener: Listener) {
         listeners.add(listener)
     }
 
