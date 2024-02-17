@@ -5,7 +5,7 @@ import android.graphics.Paint
 import de.traendy.spaceshooter.engine.PrimitiveEntityHolder
 import kotlin.random.Random
 
-class PlayerParticleEntityHolder(private val mPaint: Paint, private val mBorderPaint: Paint) :
+class PlayerParticleEntityHolder(private var mPaint: Paint, private val mBorderPaint: Paint) :
     PrimitiveEntityHolder<PlayerParticle>() {
 
 
@@ -62,5 +62,9 @@ class PlayerParticleEntityHolder(private val mPaint: Paint, private val mBorderP
                 )
             )
         }
+    }
+
+    fun updatePaint(paint: Paint) {
+        mPaint = paint;
     }
 }

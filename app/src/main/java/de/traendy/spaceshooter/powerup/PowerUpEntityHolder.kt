@@ -91,7 +91,7 @@ class PowerUpEntityHolder(
                         points = GameConfig.healthPowerUpPoints
                     }
                     is PointsPowerUp -> {
-                        points = GameConfig.pointsPowerUpPoints
+                        points = GameConfig.pointsPowerUpPoints + ((System.currentTimeMillis() - oldGameState.startTime) / 1000).toInt()
                     }
                 }
                 oldGameState.addPoint(points)

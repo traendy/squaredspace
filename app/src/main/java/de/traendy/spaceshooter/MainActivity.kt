@@ -3,7 +3,11 @@ package de.traendy.spaceshooter
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ActivityInfo
+import android.net.Uri
 import android.os.Bundle
+import android.text.Html
+import android.text.Html.FROM_HTML_MODE_COMPACT
+import android.text.Html.FROM_HTML_MODE_LEGACY
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import de.traendy.spaceshooter.databinding.ActivityMainBinding
@@ -30,6 +34,9 @@ class MainActivity : AppCompatActivity(), StateMediator.Listener {
 
         binding.shareButton.setOnClickListener{
             share()
+        }
+        binding.privacyPolicy.setOnClickListener {
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/traendy/squaredspace/blob/master/privacy_police.md")))
         }
 
         getOldHighScore()
@@ -62,6 +69,8 @@ class MainActivity : AppCompatActivity(), StateMediator.Listener {
         binding.version.visibility = View.VISIBLE
         binding.specialThanks.visibility = View.VISIBLE
         binding.startButton.visibility = View.VISIBLE
+        binding.privacyPolicy.text = Html.fromHtml("<a href='https://github.com/traendy/squaredspace/blob/master/privacy_police.md'> Privacy Police </a>", FROM_HTML_MODE_LEGACY)
+        binding.privacyPolicy.visibility = View.VISIBLE
 //        binding.shareButton.visibility = View.VISIBLE
     }
 
@@ -97,6 +106,7 @@ class MainActivity : AppCompatActivity(), StateMediator.Listener {
         binding.version.visibility = View.GONE
         binding.shareButton.visibility = View.GONE
         binding.specialThanks.visibility = View.GONE
+        binding.privacyPolicy.visibility = View.GONE
     }
 
     private fun saveHighScore(highScore: Long) {

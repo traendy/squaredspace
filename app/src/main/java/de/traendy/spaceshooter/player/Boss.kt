@@ -1,6 +1,7 @@
 package de.traendy.spaceshooter.player
 
 import android.graphics.Canvas
+import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.RectF
 import de.traendy.spaceshooter.BuildConfig
@@ -17,6 +18,19 @@ class Boss(private val mPaint: Paint, private val rectF: RectF) : Entity {
     var hitPoints = GameConfig.bossHitPoints
     private var living = false
     private var interpolatorPosition = 0.0f
+    private val paints = listOf(Paint().apply {
+        color = Color.parseColor("#CC00AA33")
+        strokeWidth = 5f
+        style = Paint.Style.STROKE},
+        Paint().apply {
+            color = Color.parseColor("#CC3300AA")
+            strokeWidth = 10f
+            style = Paint.Style.STROKE},
+        Paint().apply {
+            color = Color.parseColor("#CC00AA33")
+            strokeWidth = 5f
+            style = Paint.Style.FILL},
+    )
 
     override fun updatePosition(x: Float, y: Float) {
         xPos = updateRelativePosition(x)
@@ -78,5 +92,9 @@ class Boss(private val mPaint: Paint, private val rectF: RectF) : Entity {
         hitPoints = GameConfig.bossHitPoints
         living = true
         yPos = -100f
+    }
+
+    fun getRandomPaint(): Paint {
+        return paints.random()
     }
 }

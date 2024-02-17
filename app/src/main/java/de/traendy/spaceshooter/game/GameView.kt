@@ -226,6 +226,7 @@ class GameView @JvmOverloads constructor(
             bossSpawner.enable()
         } else {
             bossSpawner.disable()
+            bossParticleEntityHolder.updatePaint(boss.getRandomPaint())
             bossParticleEntityHolder.updateVisibility(true)
             boss.updatePosition(player.xPos, 100f)
             boss.draw(canvas)

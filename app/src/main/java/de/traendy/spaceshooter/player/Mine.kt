@@ -12,11 +12,14 @@ class Mine(
     override var xPos: Float, override var yPos: Float, private val drift: Int
 ) : Entity {
 
+    private var frameRate = 60
     private val collisionBox: RectF = RectF()
     private val mVelocity = GameConfig.mineVelocity
+    private var frameCounter = 0
 
     private val mRadius = GameConfig.mineSize
     private var hit = false
+    private var drawDot = false
 
     private val circleSolidPaint = Paint().apply {
         color = Color.parseColor("#FFFF2233")
@@ -33,13 +36,25 @@ class Mine(
         yPos += mVelocity
         xPos += drift
         collisionBox.set(xPos, yPos, xPos + mRadius, yPos + mRadius)
+        if (frameCounter <= frameRate) {
+            drawDot = true
+        } else if (frameCounter <= frameRate * 2) {
+            drawDot = false
+        } else if (frameCounter > frameRate * 2) {
+            frameCounter = 0
+        }
+        frameCounter++
     }
 
     override fun draw(canvas: Canvas) {
         canvas.save()
         canvas.drawRect(collisionBox, circleFillPaint)
         canvas.drawRect(collisionBox, circleSolidPaint)
-        canvas.drawPoint(xPos-10, yPos-10, circleSolidPaint)
+        if (drawDot) {
+            canvas.drawPoint(xPos - 10, yPos - 10, circleSolidPaint)
+        } else {
+            canvas.drawPoint(xPos - 10, yPos - 20, circleSolidPaint)
+        }
         canvas.restore()
     }
 
